@@ -69,6 +69,9 @@ public class FavoriteListFragment extends Fragment {
             binding.idPBLoading.setVisibility(View.GONE);
         });
 
+        // get favorite movies count to set the favorite tag
+        movieListViewModel.getFavoriteMovieListSizeFromDb();
+
 
         return binding.getRoot();
     }

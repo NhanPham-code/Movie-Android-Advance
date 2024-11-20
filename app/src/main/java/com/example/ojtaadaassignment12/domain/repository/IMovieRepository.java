@@ -8,6 +8,7 @@ import com.example.ojtaadaassignment12.domain.models.Movie;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
 public interface IMovieRepository {
 
@@ -22,4 +23,7 @@ public interface IMovieRepository {
 
     // delete favorite movie from local database
     void deleteFavoriteMovie(Movie movie);
+
+    // get favorite movies count to set the favorite tag
+    Single<Integer> getFavoriteMoviesCount();
 }

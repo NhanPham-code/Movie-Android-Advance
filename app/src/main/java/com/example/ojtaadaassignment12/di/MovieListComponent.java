@@ -2,6 +2,7 @@ package com.example.ojtaadaassignment12.di;
 
 import android.app.Application;
 
+import com.example.ojtaadaassignment12.presentation.MainActivity;
 import com.example.ojtaadaassignment12.presentation.views.fragments.FavoriteListFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieListFragment;
 
@@ -24,4 +25,7 @@ public interface MovieListComponent {
 
     // register inject for favorite movie list fragment
     void injectFavoriteListFragment(FavoriteListFragment fragment);
+
+    // register inject for main activity
+    void injectMainActivity(MainActivity mainActivity);
 }

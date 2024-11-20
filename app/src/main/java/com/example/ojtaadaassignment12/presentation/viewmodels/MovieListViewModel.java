@@ -35,7 +35,11 @@ public class MovieListViewModel extends ViewModel {
     private final MutableLiveData<PagingData<Movie>> favoriteList = new MutableLiveData<>();
     private Flowable<PagingData<Movie>> cachedMovies;
 
+    // use to notify movie list adapter to update the favorite icon
     private final MutableLiveData<Movie> updateFavoriteMovie = new MutableLiveData<>();
+
+    // use to notify main activity to update the favorite tag size
+    private final MutableLiveData<Integer> favoriteMoviesCount = new MutableLiveData<>();
 
     GetMovieUseCase getMovieUseCase;
 
@@ -83,6 +87,15 @@ public class MovieListViewModel extends ViewModel {
     }
 
     /**
+     * Get the favorite movies count
+     *
+     * @return favorite movies count
+     */
+    public MutableLiveData<Integer> getFavoriteMoviesCount() {
+        return favoriteMoviesCount;
+    }
+
+    /**
      * Fetch movies from the repository and set the value of movieList
      */
     public void getMovieListFromApi() {
@@ -125,6 +138,20 @@ public class MovieListViewModel extends ViewModel {
     }
 
     /**
+     * get favorite movies count from database after insert or delete favorite movie
+     */
+    public void getFavoriteMovieListSizeFromDb() {
+        Disposable disposable = favoriteUseCase.getFavoriteMoviesCount()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        favoriteMoviesCount::setValue,
+                        throwable -> Log.d("check", "getFavoriteMoviesCount: " + throwable)
+                );
+        compositeDisposable.add(disposable);
+    }
+
+    /**
      * insert favorite movie to database
      *
      * @param movie: favorite movie
@@ -136,7 +163,10 @@ public class MovieListViewModel extends ViewModel {
                 .subscribe(
                         () -> {
                             Log.d("check", "insertFavoriteMovie: success");
+                            // get favorite movie list from database after insert favorite movie
                             getFavoriteListFromDb();
+                            // get favorite movies count from database after insert favorite movie
+                            getFavoriteMovieListSizeFromDb();
                         },
 
                         throwable -> Log.d("check", "insertFavoriteMovie: " + throwable)
@@ -158,7 +188,10 @@ public class MovieListViewModel extends ViewModel {
                 .subscribe(
                         () -> {
                             Log.d("check", "insertFavoriteMovie: success");
+                            // get favorite movie list from database after insert favorite movie
                             getFavoriteListFromDb();
+                            // get favorite movies count from database after insert favorite movie
+                            getFavoriteMovieListSizeFromDb();
                         },
 
                         throwable -> Log.d("check", "insertFavoriteMovie: " + throwable)

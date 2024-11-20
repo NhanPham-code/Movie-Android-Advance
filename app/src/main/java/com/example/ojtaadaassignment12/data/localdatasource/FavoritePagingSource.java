@@ -35,6 +35,8 @@ public class FavoritePagingSource extends RxPagingSource<Integer, Movie> {
 
 
         int page = loadParams.getKey() != null ? loadParams.getKey() : 1;
+
+        // page size is 5 is config in the PagingConfig in MovieRepositoryImpl
         int pageSize = loadParams.getLoadSize();
 
         return favoriteMovieDao.getFavoriteMovies()
@@ -45,9 +47,13 @@ public class FavoritePagingSource extends RxPagingSource<Integer, Movie> {
 
 
     private LoadResult<Integer, Movie> toLoadResult(List<Movie> favoriteMovieList, int page, int pageSize) {
+
+        // page size is 5 is config in the PagingConfig in MovieRepositoryImpl
         int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, favoriteMovieList.size());
 
+        // sublist is a part of the favorite movie list that will be displayed on the current page
+        // first time: page = 1, fromIndex = 0, toIndex = 5, get items (0, 1, 2, 3, 4)
         List<Movie> sublist = favoriteMovieList.subList(fromIndex, toIndex);
 
         Integer nextPage = toIndex < favoriteMovieList.size() ? page + 1 : null;

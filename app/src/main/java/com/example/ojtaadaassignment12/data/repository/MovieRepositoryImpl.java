@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
 @Singleton
 public class MovieRepositoryImpl implements IMovieRepository {
@@ -102,5 +103,10 @@ public class MovieRepositoryImpl implements IMovieRepository {
     @Override
     public void deleteFavoriteMovie(Movie movie) {
         favoriteMovieDao.deleteFavoriteMovieById(movie.getId());
+    }
+
+    @Override
+    public Single<Integer> getFavoriteMoviesCount() {
+        return favoriteMovieDao.getFavoriteMoviesCount();
     }
 }

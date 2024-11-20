@@ -28,4 +28,7 @@ public interface FavoriteMovieDao {
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_movie_table WHERE id = :id)")
     boolean isFavoriteMovie(long id);
 
+    @Query("SELECT COUNT(*) FROM favorite_movie_table")
+    Single<Integer> getFavoriteMoviesCount();
+
 }

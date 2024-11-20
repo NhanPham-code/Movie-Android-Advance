@@ -11,13 +11,19 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.databinding.ActivityMainBinding;
+import com.example.ojtaadaassignment12.di.MyApplication;
+import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.ViewPagerAdapter;
 import com.example.ojtaadaassignment12.presentation.views.fragments.FavoriteListFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieListFragment;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +45,14 @@ public class MainActivity extends AppCompatActivity {
     MovieListFragment movieListFragment;
     Fragment favoriteListFragment;
 
+    // View models
+    @Inject
+    MovieListViewModel movieListViewModel;
+
+    /**
+     * Save the state fragment when activity is recreated
+     * @param outState: bundle
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -79,6 +93,18 @@ public class MainActivity extends AppCompatActivity {
         // Set up tab change listener to change toolbar title...
         setUpTabChangeListener();
 
+        // Inject MovieListComponent by MyApplication to use MovieListViewModel
+        ((MyApplication) getApplication()).movieListComponent.injectMainActivity(this);
+
+        // observe favorite movies count (size) to set the favorite tag
+        movieListViewModel.getFavoriteMoviesCount().observe(this, favoriteListSize -> {
+            TabLayout.Tab tab = binding.tabLayout.getTabAt(1);
+            if(tab != null) {
+                BadgeDrawable badge = tab.getOrCreateBadge();
+                badge.setVisible(true);
+                badge.setNumber(favoriteListSize);
+            }
+        });
     }
 
     /**

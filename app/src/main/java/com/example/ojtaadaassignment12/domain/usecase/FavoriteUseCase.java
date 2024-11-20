@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class FavoriteUseCase {
@@ -50,5 +51,14 @@ public class FavoriteUseCase {
      */
     public void deleteFavoriteMovie(Movie movie) {
         iMovieRepository.deleteFavoriteMovie(movie);
+    }
+
+    /**
+     * Get favorite movies count to set the favorite tag by using IMovieRepository
+     *
+     * @return Single<Integer> favorite movies count
+     */
+    public Single<Integer> getFavoriteMoviesCount() {
+        return iMovieRepository.getFavoriteMoviesCount();
     }
 }
