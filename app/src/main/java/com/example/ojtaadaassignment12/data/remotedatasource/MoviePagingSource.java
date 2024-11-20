@@ -51,8 +51,6 @@ public class MoviePagingSource extends RxPagingSource<Integer, Movie> {
     @Override
     public Single<LoadResult<Integer, Movie>> loadSingle(@NonNull LoadParams<Integer> loadParams) {
 
-        //movieApiService = RetrofitClient.getInstance().getMovieApiService();
-
         int page = loadParams.getKey() != null ? loadParams.getKey() : 1;
 
         return movieApiService.getMoviesByCategory(category, page)
@@ -64,9 +62,12 @@ public class MoviePagingSource extends RxPagingSource<Integer, Movie> {
 
     private LoadResult<Integer, Movie> toLoadResult(Page response, int page) {
         List<Movie> movies = response.getResults();
+
+        // Set isFavorite flag for each movie when loading from API
         for(Movie m : movies) {
             m.setIsFavorite(movieDao.isFavoriteMovie(m.getId()) ? 1 : 0);
         }
+
         return new LoadResult.Page<>(
                 movies,
                 page == 1 ? null : page - 1, // page before current page

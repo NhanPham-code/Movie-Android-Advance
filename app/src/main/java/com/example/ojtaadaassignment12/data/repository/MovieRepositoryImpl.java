@@ -7,6 +7,7 @@ import androidx.paging.PagingData;
 import androidx.paging.rxjava3.PagingRx;
 
 import com.example.ojtaadaassignment12.data.localdatasource.FavoriteMovieDao;
+import com.example.ojtaadaassignment12.data.localdatasource.FavoritePagingSource;
 import com.example.ojtaadaassignment12.data.remotedatasource.MoviePagingSource;
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.repository.IMovieRepository;
@@ -21,16 +22,22 @@ import io.reactivex.rxjava3.core.Flowable;
 @Singleton
 public class MovieRepositoryImpl implements IMovieRepository {
 
-    // Use to get movie list from API
+    // Network data source
     MoviePagingSource moviePagingSource;
+
+    // Local data source
+    FavoritePagingSource favoritePagingSource;
 
     // Use to get favorite movie list from local database
     FavoriteMovieDao favoriteMovieDao;
 
     @Inject
-    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoriteMovieDao favoriteMovieDao) {
-        // use dagger to inject the page source
+    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource ,FavoriteMovieDao favoriteMovieDao) {
+        // use dagger to inject the network page source
         this.moviePagingSource = moviePagingSource;
+
+        // use dagger to inject the local page source
+        this.favoritePagingSource = favoritePagingSource;
 
         // use dagger to inject the favorite movie dao
         this.favoriteMovieDao = favoriteMovieDao;
@@ -72,7 +79,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
                         false,
                         5,
                         10
-                ), () ->  favoriteMovieDao.getFavoriteMovies()
+                ), () ->  favoritePagingSource
         );
 
         return PagingRx.getFlowable(pager);

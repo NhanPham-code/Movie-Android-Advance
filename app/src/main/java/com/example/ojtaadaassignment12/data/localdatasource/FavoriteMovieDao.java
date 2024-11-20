@@ -8,7 +8,10 @@ import androidx.room.Query;
 
 import com.example.ojtaadaassignment12.domain.models.Movie;
 
+import java.util.List;
+
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface FavoriteMovieDao {
@@ -20,7 +23,7 @@ public interface FavoriteMovieDao {
     void deleteFavoriteMovieById(long id);
 
     @Query("SELECT * FROM favorite_movie_table")
-    PagingSource<Integer, Movie> getFavoriteMovies();
+    Single<List<Movie>> getFavoriteMovies();
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_movie_table WHERE id = :id)")
     boolean isFavoriteMovie(long id);

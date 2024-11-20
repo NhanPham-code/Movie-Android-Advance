@@ -15,8 +15,6 @@ public class Movie implements Parcelable {
     private boolean adult;
     @SerializedName("backdrop_path")
     private String backdropPath;
-//    @SerializedName("genre_ids")
-//    private int[] genreIds;
     @SerializedName("id")
     @PrimaryKey
     private long id;
