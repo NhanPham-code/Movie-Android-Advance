@@ -18,10 +18,22 @@ public class FavoritePagingSource extends RxPagingSource<Integer, Movie> {
 
     private final FavoriteMovieDao favoriteMovieDao;
 
+    private String titleSearch;
+
     @Inject
     public FavoritePagingSource(FavoriteMovieDao favoriteMovieDao) {
         this.favoriteMovieDao = favoriteMovieDao;
     }
+
+    /**
+     * Set the name key to search favorite movie list
+     *
+     * @param title: movie title
+     */
+    public void setTitleSearch(String title) {
+        this.titleSearch = title;
+    }
+
 
     @Nullable
     @Override
@@ -33,13 +45,23 @@ public class FavoritePagingSource extends RxPagingSource<Integer, Movie> {
     @Override
     public Single<LoadResult<Integer, Movie>> loadSingle(@NonNull LoadParams<Integer> loadParams) {
 
-
         int page = loadParams.getKey() != null ? loadParams.getKey() : 1;
 
         // page size is 5 is config in the PagingConfig in MovieRepositoryImpl
         int pageSize = loadParams.getLoadSize();
 
-        return favoriteMovieDao.getFavoriteMovies()
+        Single<List<Movie>> movieListSingle;
+
+        // check if the title search is empty or null
+        if (titleSearch == null || titleSearch.isEmpty()) {
+            // get all favorite movies from local database
+            movieListSingle = favoriteMovieDao.getFavoriteMovies();
+        } else {
+            // search favorite movies by name key from local database
+            movieListSingle = favoriteMovieDao.searchFavoriteMoviesByTitle("%" + titleSearch + "%");
+        }
+
+        return movieListSingle
                 .subscribeOn(Schedulers.io())
                 .map(favoriteMovieList -> toLoadResult(favoriteMovieList, page, pageSize))
                 .onErrorReturn(LoadResult.Error::new);

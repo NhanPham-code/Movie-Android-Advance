@@ -27,6 +27,8 @@ public class MovieListFragment extends Fragment {
 
     MovieListAdapter movieListAdapter;
 
+    String category = "popular"; // default category for first time
+
     @Inject
     MovieListViewModel movieListViewModel;
 
@@ -67,8 +69,7 @@ public class MovieListFragment extends Fragment {
 
 
         // Fetch movie list from API
-        movieListViewModel.getMovieListFromApi();
-
+        movieListViewModel.getMovieListFromApi(category);
 
         // Observe movie list to update UI after get data from API
         movieListViewModel.getMovieList().observe(getViewLifecycleOwner(), movies -> {
@@ -84,7 +85,23 @@ public class MovieListFragment extends Fragment {
         });
 
 
+        // pull to refresh
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            movieListViewModel.getMovieListFromApi(category);
+            binding.swipeRefreshLayout.setRefreshing(false);
+        });
+
+
         return binding.getRoot();
+    }
+
+    /**
+     * Load movie list by category (popular, top_rated, upcoming)
+     * @param category: category of movie list
+     */
+    public void loadMovieListByCategory(String category) {
+        this.category = category;
+        movieListViewModel.getMovieListFromApi(category);
     }
 
 

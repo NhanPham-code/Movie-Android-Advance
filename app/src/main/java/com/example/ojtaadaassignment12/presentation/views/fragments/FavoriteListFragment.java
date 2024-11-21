@@ -72,7 +72,21 @@ public class FavoriteListFragment extends Fragment {
         // get favorite movies count to set the favorite tag
         movieListViewModel.getFavoriteMovieListSizeFromDb();
 
+        // pull to refresh
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            movieListViewModel.getFavoriteListFromDb();
+            binding.swipeRefreshLayout.setRefreshing(false);
+        });
+
 
         return binding.getRoot();
+    }
+
+    /**
+     * Search favorite movie by title
+     * @param title: movie title
+     */
+    public void searchFavoriteMovie(String title) {
+        movieListViewModel.searchFavoriteMovie(title);
     }
 }

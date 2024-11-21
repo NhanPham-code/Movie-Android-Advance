@@ -33,7 +33,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
     FavoriteMovieDao favoriteMovieDao;
 
     @Inject
-    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource ,FavoriteMovieDao favoriteMovieDao) {
+    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource, FavoriteMovieDao favoriteMovieDao) {
         // use dagger to inject the network page source
         this.moviePagingSource = moviePagingSource;
 
@@ -46,20 +46,24 @@ public class MovieRepositoryImpl implements IMovieRepository {
 
     /**
      * Get movie list by category from API
+     *
      * @param category: movie category
-     * @return Flowable<PagingData<Movie>> movie list
+     * @return Flowable<PagingData < Movie>> movie list
      */
     @Override
     public Flowable<PagingData<Movie>> getMovies(String category) {
 
         Pager<Integer, Movie> pager = new Pager<>(
-            new PagingConfig(
-                5,
-                1,
-                false,
-                5,
-                10
-            ), () ->  {moviePagingSource.setCategory(category); return moviePagingSource;}
+                new PagingConfig(
+                        5,
+                        1,
+                        false,
+                        5,
+                        10
+                ), () -> {
+            moviePagingSource.setCategory(category);
+            return moviePagingSource;
+        }
         );
 
         return PagingRx.getFlowable(pager);
@@ -68,7 +72,8 @@ public class MovieRepositoryImpl implements IMovieRepository {
 
     /**
      * Get favorite movie list from local database
-     * @return Flowable<PagingData<Movie>> favorite movie list
+     *
+     * @return Flowable<PagingData < Movie>> favorite movie list
      */
     @Override
     public Flowable<PagingData<Movie>> getFavoriteMovies() {
@@ -80,7 +85,25 @@ public class MovieRepositoryImpl implements IMovieRepository {
                         false,
                         5,
                         10
-                ), () ->  favoritePagingSource
+                ), () -> favoritePagingSource
+        );
+
+        return PagingRx.getFlowable(pager);
+    }
+
+    @Override
+    public Flowable<PagingData<Movie>> getFavoriteMoviesByTitle(String title) {
+
+        favoritePagingSource.setTitleSearch(title);
+
+        Pager<Integer, Movie> pager = new Pager<>(
+                new PagingConfig(
+                        5,
+                        1,
+                        false,
+                        5,
+                        10
+                ), () -> favoritePagingSource
         );
 
         return PagingRx.getFlowable(pager);
@@ -89,6 +112,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
 
     /**
      * Insert favorite movie to local database
+     *
      * @param movie: favorite movie
      */
     @Override
@@ -98,6 +122,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
 
     /**
      * Delete favorite movie from local database
+     *
      * @param movie: favorite movie
      */
     @Override

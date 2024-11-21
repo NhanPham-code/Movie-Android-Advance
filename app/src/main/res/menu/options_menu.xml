@@ -1,15 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- res/menu/options_menu.xml -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/menu_movie_popular"
-        android:title="Popular" />
-    <item
-        android:id="@+id/menu_movie_top_rated"
-        android:title="Top Rated" />
-    <item
-        android:id="@+id/menu_movie_upcoming"
-        android:title="Upcoming" />
-    <item
-        android:id="@+id/menu_movie_now_playing"
-        android:title="Now Playing" />
+    <group
+        android:id="@+id/menu_group">
+        <item
+            android:id="@+id/menu_movie_popular"
+            android:title="Popular" />
+        <item
+            android:id="@+id/menu_movie_top_rated"
+            android:title="Top Rated" />
+        <item
+            android:id="@+id/menu_movie_upcoming"
+            android:title="Upcoming" />
+        <item
+            android:id="@+id/menu_movie_now_playing"
+            android:title="Now Playing" />
+    </group>
 </menu>

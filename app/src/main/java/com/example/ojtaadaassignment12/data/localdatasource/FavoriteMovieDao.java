@@ -25,6 +25,9 @@ public interface FavoriteMovieDao {
     @Query("SELECT * FROM favorite_movie_table")
     Single<List<Movie>> getFavoriteMovies();
 
+    @Query("SELECT * FROM favorite_movie_table WHERE title LIKE :title")
+    Single<List<Movie>> searchFavoriteMoviesByTitle(String title);
+
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_movie_table WHERE id = :id)")
     boolean isFavoriteMovie(long id);
 

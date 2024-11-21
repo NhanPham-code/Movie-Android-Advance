@@ -33,6 +33,12 @@ public class FavoriteUseCase {
         return iMovieRepository.getFavoriteMovies();
     }
 
+    /**
+     * get favorite movie list from local database by name key by using IMovieRepository
+     */
+    public Flowable<PagingData<Movie>> getFavoriteMoviesByTitle(String title) {
+        return iMovieRepository.getFavoriteMoviesByTitle(title);
+    }
 
     /**
      * Insert favorite movie to local database by using IMovieRepository

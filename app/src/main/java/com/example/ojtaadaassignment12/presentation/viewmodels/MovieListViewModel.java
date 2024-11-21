@@ -46,8 +46,6 @@ public class MovieListViewModel extends ViewModel {
     FavoriteUseCase favoriteUseCase;
 
 
-    String category = "popular"; // default category
-
     @Inject
     public MovieListViewModel(GetMovieUseCase getMovieUseCase, FavoriteUseCase favoriteUseCase) {
         // old code (don't need to use)
@@ -98,23 +96,21 @@ public class MovieListViewModel extends ViewModel {
     /**
      * Fetch movies from the repository and set the value of movieList
      */
-    public void getMovieListFromApi() {
-        if (cachedMovies == null) {
-            // Fetch movies from the MovieService
-            Flowable<PagingData<Movie>> movies = getMovieUseCase.execute(category);
+    public void getMovieListFromApi(String category) {
+        // Fetch movies from the MovieService
+        Flowable<PagingData<Movie>> movies = getMovieUseCase.execute(category);
 
-            // Cache the movies to avoid fetching them again when the activity is recreated
-            cachedMovies = PagingRx.cachedIn(movies, ViewModelKt.getViewModelScope(this));
+        // Cache the movies to avoid fetching them again when the activity is recreated
+        cachedMovies = PagingRx.cachedIn(movies, ViewModelKt.getViewModelScope(this));
 
-            Disposable disposable = cachedMovies
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            movieList::setValue, // set the value of movieList
-                            throwable -> Log.d("check", "fetchMovies: " + throwable)
-                    );
-            compositeDisposable.add(disposable);
-        }
+        Disposable disposable = cachedMovies
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        movieList::setValue, // set the value of movieList
+                        throwable -> Log.d("check", "fetchMovies: " + throwable)
+                );
+        compositeDisposable.add(disposable);
     }
 
     /**
@@ -135,6 +131,20 @@ public class MovieListViewModel extends ViewModel {
                     );
             compositeDisposable.add(disposable);
         }
+    }
+
+    /**
+     * get favorite movie list from database by name key
+     */
+    public void searchFavoriteMovie(String title) {
+        Disposable disposable = favoriteUseCase.getFavoriteMoviesByTitle(title)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        favoriteList::setValue,
+                        throwable -> Log.d("check", "searchFavoriteMovies: " + throwable)
+                );
+        compositeDisposable.add(disposable);
     }
 
     /**

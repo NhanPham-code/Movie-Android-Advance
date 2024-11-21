@@ -1,7 +1,11 @@
 package com.example.ojtaadaassignment12.presentation;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -43,14 +47,19 @@ public class MainActivity extends AppCompatActivity {
     // fragments
     List<Fragment> fragmentList;
     MovieListFragment movieListFragment;
-    Fragment favoriteListFragment;
+    FavoriteListFragment favoriteListFragment;
+
+    // use check visible options menu
+    private boolean isOptionsMenuEnabled = true;
 
     // View models
     @Inject
     MovieListViewModel movieListViewModel;
 
+
     /**
      * Save the state fragment when activity is recreated
+     *
      * @param outState: bundle
      */
     @Override
@@ -93,19 +102,98 @@ public class MainActivity extends AppCompatActivity {
         // Set up tab change listener to change toolbar title...
         setUpTabChangeListener();
 
-        // Inject MovieListComponent by MyApplication to use MovieListViewModel
+        // Inject MovieListComponent by MyApplication to use MovieListViewModel to observe favorite movies count
         ((MyApplication) getApplication()).movieListComponent.injectMainActivity(this);
+        setFavoriteTabTag();
 
+        // set up search button
+        setUpSearchButton();
+    }
+
+    /**
+     * Set up listener search button
+     */
+    private void setUpSearchButton() {
+        binding.searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchFavoriteMovie();
+            }
+        });
+    }
+
+    /**
+     * Search favorite movie by name keyword
+     */
+    private void searchFavoriteMovie() {
+        String search = binding.searchEditText.getText().toString();
+        if (search.isEmpty()) {
+            // show all favorite movies
+            favoriteListFragment.searchFavoriteMovie(search);
+            Toast.makeText(this, "Please enter search keyword", Toast.LENGTH_SHORT).show();
+        } else {
+            // search favorite movies by keyword
+            favoriteListFragment.searchFavoriteMovie(search);
+        }
+    }
+
+
+    /**
+     * Set tag for favorite tab
+     */
+    private void setFavoriteTabTag() {
         // observe favorite movies count (size) to set the favorite tag
+        // size will get in favorite list fragment
         movieListViewModel.getFavoriteMoviesCount().observe(this, favoriteListSize -> {
             TabLayout.Tab tab = binding.tabLayout.getTabAt(1);
-            if(tab != null) {
+            if (tab != null) {
                 BadgeDrawable badge = tab.getOrCreateBadge();
                 badge.setVisible(true);
                 badge.setNumber(favoriteListSize);
             }
         });
     }
+
+
+    /**
+     * Create options menu
+     *
+     * @param menu: menu
+     * @return boolean
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.setGroupVisible(R.id.menu_group, isOptionsMenuEnabled);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_movie_popular) {
+            movieListFragment.loadMovieListByCategory("popular");
+            return true;
+        } else if (itemId == R.id.menu_movie_top_rated) {
+            movieListFragment.loadMovieListByCategory("top_rated");
+            return true;
+        } else if (itemId == R.id.menu_movie_upcoming) {
+            movieListFragment.loadMovieListByCategory("upcoming");
+            return true;
+        } else if (itemId == R.id.menu_movie_now_playing) {
+            movieListFragment.loadMovieListByCategory("now_playing");
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     /**
      * Set up tab change listener to change toolbar title...
@@ -118,34 +206,40 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageSelected(position);
                 switch (position) {
                     case 0: // Movie List
-                        binding.toolbar.setTitle("Moives");
+                        binding.toolbar.setTitle("Movies");
                         binding.changeLayoutButton.setVisibility(View.VISIBLE);
                         binding.searchEditText.setVisibility(View.GONE);
                         binding.searchButton.setVisibility(View.GONE);
+                        isOptionsMenuEnabled = true;
                         break;
                     case 1: // Favorite List
                         binding.toolbar.setTitle("");
                         binding.changeLayoutButton.setVisibility(View.GONE);
                         binding.searchEditText.setVisibility(View.VISIBLE);
-                        binding.searchEditText.setText("Favourite");
+                        binding.searchEditText.setText("Favorite");
                         binding.searchButton.setVisibility(View.VISIBLE);
+                        isOptionsMenuEnabled = false;
                         break;
                     case 2: // Setting
                         binding.toolbar.setTitle("Setting");
                         binding.changeLayoutButton.setVisibility(View.GONE);
                         binding.searchEditText.setVisibility(View.GONE);
                         binding.searchButton.setVisibility(View.GONE);
+                        isOptionsMenuEnabled = false;
                         break;
                     case 3: // About
                         binding.toolbar.setTitle("About");
                         binding.changeLayoutButton.setVisibility(View.GONE);
                         binding.searchEditText.setVisibility(View.GONE);
                         binding.searchButton.setVisibility(View.GONE);
+                        isOptionsMenuEnabled = false;
                         break;
                 }
+                invalidateOptionsMenu(); // call onPrepareOptionsMenu to refresh options menu
             }
         });
     }
+
 
     /**
      * Set up button change layout of movie list (list or grid layout)
@@ -165,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     /**
      * Set up tab layout and view pager

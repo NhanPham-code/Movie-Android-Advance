@@ -18,6 +18,9 @@ public interface IMovieRepository {
     // get favorite movie list from local database
     Flowable<PagingData<Movie>> getFavoriteMovies();
 
+    // get favorite movie list from local database by name key
+    Flowable<PagingData<Movie>> getFavoriteMoviesByTitle(String title);
+
     // insert favorite movie to local database
     void insertFavoriteMovie(Movie movie);
 
