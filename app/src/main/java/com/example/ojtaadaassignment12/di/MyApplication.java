@@ -4,11 +4,11 @@ import android.app.Application;
 
 public class MyApplication extends Application {
 
-    public MovieListComponent movieListComponent;
+    public AppComponent appComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        movieListComponent = DaggerMovieListComponent.factory().create(this);
+       appComponent = DaggerAppComponent.factory().create(this);
     }
 }

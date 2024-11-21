@@ -13,6 +13,7 @@ import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.databinding.ItemMovieGridTypeBinding;
 import com.example.ojtaadaassignment12.databinding.ItemMovieListTypeBinding;
+import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.util.Constant;
 import com.squareup.picasso.Picasso;
@@ -20,11 +21,12 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 public class MovieListAdapter extends PagingDataAdapter<Movie, MovieListAdapter.MovieViewHolder> {
-
     private boolean isGridLayout = false;
     Picasso picasso;
 
     MovieListViewModel movieListViewModel;
+
+    MovieDetailViewModel movieDetailViewModel;
 
     public MovieListAdapter() {
         super(DIFF_CALLBACK);
@@ -61,26 +63,36 @@ public class MovieListAdapter extends PagingDataAdapter<Movie, MovieListAdapter.
         if (movie != null) {
             holder.bind(movie);
 
-            // Set onClickListener for favorite button
-            holder.listTypeBinding.imgFavorite.setOnClickListener(new View.OnClickListener() {
+            if (!isGridLayout) {
+                // Set onClickListener for favorite button in list layout
+                holder.listTypeBinding.imgFavorite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (movie.getIsFavorite() == 0) {
+                            movie.setIsFavorite(1);
+                            movieListViewModel.insertFavoriteMovie(movie);
+                        } else {
+                            movie.setIsFavorite(0);
+                            movieListViewModel.deleteFavoriteMovie(movie);
+                        }
+                    }
+                });
+            }
+
+            // Using live data to navigate to movie detail fragment
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (movie.getIsFavorite() == 0) {
-                        movie.setIsFavorite(1);
-                        movieListViewModel.insertFavoriteMovie(movie);
-                    } else {
-                        movie.setIsFavorite(0);
-                        movieListViewModel.deleteFavoriteMovie(movie);
-                    }
+                    movieDetailViewModel.setMovieDetailMutableLiveData(movie);
                 }
             });
-
         }
 
     }
 
     /**
      * Set the layout of the recycler view
+     *
      * @param isGridLayout: true if grid layout, false if list layout
      */
     public void setGridLayout(boolean isGridLayout) {
@@ -90,15 +102,26 @@ public class MovieListAdapter extends PagingDataAdapter<Movie, MovieListAdapter.
 
     /**
      * Set the view model for the adapter
+     *
      * @param movieListViewModel: view model for the adapter
      */
     public void setMovieListViewModel(MovieListViewModel movieListViewModel) {
         this.movieListViewModel = movieListViewModel;
     }
 
+    /**
+     * Set the view model for the adapter
+     *
+     * @param movieDetailViewModel: view model for the adapter
+     */
+    public void setMovieDetailViewModel(MovieDetailViewModel movieDetailViewModel) {
+        this.movieDetailViewModel = movieDetailViewModel;
+    }
+
 
     /**
      * Update the favorite icon of the movie when it is clicked
+     *
      * @param movie: movie to update
      */
     public void updateItem(Movie movie) {

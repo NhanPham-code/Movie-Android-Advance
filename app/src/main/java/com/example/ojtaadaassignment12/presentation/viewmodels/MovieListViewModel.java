@@ -41,8 +41,14 @@ public class MovieListViewModel extends ViewModel {
     // use to notify main activity to update the favorite tag size
     private final MutableLiveData<Integer> favoriteMoviesCount = new MutableLiveData<>();
 
-    GetMovieUseCase getMovieUseCase;
+    // use to change layout to grid by movie list fragment
+    private final MutableLiveData<Boolean> isGrid = new MutableLiveData<>();
 
+    // category to get movie list
+    private final MutableLiveData<String> category = new MutableLiveData<>();
+
+    // use cases
+    GetMovieUseCase getMovieUseCase;
     FavoriteUseCase favoriteUseCase;
 
 
@@ -56,6 +62,40 @@ public class MovieListViewModel extends ViewModel {
 
         this.favoriteUseCase = favoriteUseCase;
     }
+
+    /**
+     * set category to get movie list
+     * @param category: category to get movie list
+     */
+    public void setCategory(String category) {
+        this.category.setValue(category);
+    }
+
+    /**
+     * get category to get movie list
+     * @return category to get movie list
+     */
+    public LiveData<String> getCategory() {
+        return category;
+    }
+
+    /**
+     * set layout to grid or list
+     * @param isGrid: true if layout is grid, false if layout is list
+     */
+    public void setGrid(boolean isGrid) {
+        this.isGrid.setValue(isGrid);
+    }
+
+
+    /**
+     * get layout type
+     * @return true if layout is grid, false if layout is list
+     */
+    public LiveData<Boolean> getGrid() {
+        return isGrid;
+    }
+
 
     /**
      * get movie list from api
@@ -92,6 +132,7 @@ public class MovieListViewModel extends ViewModel {
     public MutableLiveData<Integer> getFavoriteMoviesCount() {
         return favoriteMoviesCount;
     }
+
 
     /**
      * Fetch movies from the repository and set the value of movieList
@@ -183,6 +224,7 @@ public class MovieListViewModel extends ViewModel {
                 );
         compositeDisposable.add(disposable);
 
+        //update favorite movie list after insert favorite movie to observe in movie list fragment
         updateFavoriteMovie.setValue(movie);
     }
 
@@ -198,9 +240,9 @@ public class MovieListViewModel extends ViewModel {
                 .subscribe(
                         () -> {
                             Log.d("check", "insertFavoriteMovie: success");
-                            // get favorite movie list from database after insert favorite movie
+                            // get favorite movie list from database after delete favorite movie
                             getFavoriteListFromDb();
-                            // get favorite movies count from database after insert favorite movie
+                            // get favorite movies count from database after delete favorite movie
                             getFavoriteMovieListSizeFromDb();
                         },
 
@@ -208,6 +250,7 @@ public class MovieListViewModel extends ViewModel {
                 );
         compositeDisposable.add(disposable);
 
+        //update favorite movie list after delete favorite movie to observe in movie list fragment
         updateFavoriteMovie.setValue(movie);
     }
 

@@ -9,6 +9,7 @@ import androidx.paging.rxjava3.PagingRx;
 import com.example.ojtaadaassignment12.data.localdatasource.FavoriteMovieDao;
 import com.example.ojtaadaassignment12.data.localdatasource.FavoritePagingSource;
 import com.example.ojtaadaassignment12.data.remotedatasource.MoviePagingSource;
+import com.example.ojtaadaassignment12.domain.models.CastOfMovie;
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.repository.IMovieRepository;
 
@@ -134,4 +135,5 @@ public class MovieRepositoryImpl implements IMovieRepository {
     public Single<Integer> getFavoriteMoviesCount() {
         return favoriteMovieDao.getFavoriteMoviesCount();
     }
+
 }

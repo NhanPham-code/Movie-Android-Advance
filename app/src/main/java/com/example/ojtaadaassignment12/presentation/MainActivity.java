@@ -11,6 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.ojtaadaassignment12.R;
@@ -18,7 +22,9 @@ import com.example.ojtaadaassignment12.databinding.ActivityMainBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.ViewPagerAdapter;
+import com.example.ojtaadaassignment12.presentation.views.fragments.CommonFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.FavoriteListFragment;
+import com.example.ojtaadaassignment12.presentation.views.fragments.MovieDetailFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieListFragment;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
@@ -46,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     // fragments
     List<Fragment> fragmentList;
-    MovieListFragment movieListFragment;
+    CommonFragment commonFragment;
     FavoriteListFragment favoriteListFragment;
 
     // use check visible options menu
@@ -65,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        getSupportFragmentManager().putFragment(outState, "movieListFragment", movieListFragment);
+        getSupportFragmentManager().putFragment(outState, "commonFragment", commonFragment);
+        getSupportFragmentManager().putFragment(outState, "favoriteListFragment", favoriteListFragment);
     }
 
 
@@ -81,14 +88,16 @@ public class MainActivity extends AppCompatActivity {
         // create fragments and set up view pager, tab layout
         if (savedInstanceState != null) {
             // restore fragments when activity is recreated
-            movieListFragment = (MovieListFragment) getSupportFragmentManager().getFragment(savedInstanceState, "movieListFragment");
+            commonFragment = (CommonFragment) getSupportFragmentManager().getFragment(savedInstanceState, "commonFragment");
+
+            favoriteListFragment = (FavoriteListFragment) getSupportFragmentManager().getFragment(savedInstanceState, "favoriteListFragment");
 
             // set up view pager and tab layout
             setUpTabLayoutAndViewPager();
 
         } else {
             // create fragments for first time running
-            movieListFragment = MovieListFragment.newInstance();
+            commonFragment = CommonFragment.newInstance();
 
             favoriteListFragment = FavoriteListFragment.newInstance();
 
@@ -103,12 +112,15 @@ public class MainActivity extends AppCompatActivity {
         setUpTabChangeListener();
 
         // Inject MovieListComponent by MyApplication to use MovieListViewModel to observe favorite movies count
-        ((MyApplication) getApplication()).movieListComponent.injectMainActivity(this);
+        ((MyApplication) getApplication()).appComponent.injectMainActivity(this);
         setFavoriteTabTag();
 
         // set up search button
         setUpSearchButton();
+
+
     }
+
 
     /**
      * Set up listener search button
@@ -178,16 +190,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.menu_movie_popular) {
-            movieListFragment.loadMovieListByCategory("popular");
+            movieListViewModel.setCategory("popular");
             return true;
         } else if (itemId == R.id.menu_movie_top_rated) {
-            movieListFragment.loadMovieListByCategory("top_rated");
+            movieListViewModel.setCategory("top_rated");
             return true;
         } else if (itemId == R.id.menu_movie_upcoming) {
-            movieListFragment.loadMovieListByCategory("upcoming");
+            movieListViewModel.setCategory("upcoming");
             return true;
         } else if (itemId == R.id.menu_movie_now_playing) {
-            movieListFragment.loadMovieListByCategory("now_playing");
+            movieListViewModel.setCategory("now_playing");
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -251,10 +263,16 @@ public class MainActivity extends AppCompatActivity {
                 isGridLayout = !isGridLayout;
                 if (isGridLayout) {
                     binding.changeLayoutButton.setImageResource(R.drawable.ic_list);
-                    movieListFragment.changeLayout(isGridLayout);
+
+                    // change layout to grid by view model
+                    // observe to change layout in movie list fragment
+                    movieListViewModel.setGrid(isGridLayout);
                 } else {
                     binding.changeLayoutButton.setImageResource(R.drawable.ic_grid);
-                    movieListFragment.changeLayout(isGridLayout);
+
+                    // change layout to grid by view model
+                    // observe to change layout in movie list fragment
+                    movieListViewModel.setGrid(isGridLayout);
                 }
             }
         });
@@ -266,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setUpTabLayoutAndViewPager() {
         fragmentList = new ArrayList<>();
-        fragmentList.add(movieListFragment);
+        fragmentList.add(commonFragment);
         fragmentList.add(favoriteListFragment);
 
 
@@ -306,6 +324,8 @@ public class MainActivity extends AppCompatActivity {
         tabIconList.add(R.drawable.ic_setting);
         tabIconList.add(R.drawable.ic_about);
     }
+
+
 
     /**
      * Set up toolbar

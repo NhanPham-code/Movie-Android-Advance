@@ -3,6 +3,7 @@ package com.example.ojtaadaassignment12.domain.repository;
 import androidx.lifecycle.LiveData;
 import androidx.paging.PagingData;
 
+import com.example.ojtaadaassignment12.domain.models.CastOfMovie;
 import com.example.ojtaadaassignment12.domain.models.Movie;
 
 import java.util.List;
@@ -29,4 +30,5 @@ public interface IMovieRepository {
 
     // get favorite movies count to set the favorite tag
     Single<Integer> getFavoriteMoviesCount();
+
 }

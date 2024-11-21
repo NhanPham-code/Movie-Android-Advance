@@ -45,7 +45,7 @@ public class FavoriteListFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         // inject MovieListComponent by MyApplication
-        ((MyApplication) requireActivity().getApplication()).movieListComponent.injectFavoriteListFragment(this);
+        ((MyApplication) requireActivity().getApplication()).appComponent.injectFavoriteListFragment(this);
     }
 
     @Override
