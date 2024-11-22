@@ -7,9 +7,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -20,6 +22,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.databinding.ActivityMainBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
+import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.ViewPagerAdapter;
 import com.example.ojtaadaassignment12.presentation.views.fragments.CommonFragment;
@@ -61,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     // View models
     @Inject
     MovieListViewModel movieListViewModel;
+
+    @Inject
+    MovieDetailViewModel movieDetailViewModel;
 
 
     /**
@@ -117,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
 
         // set up search button
         setUpSearchButton();
-
 
     }
 
@@ -326,7 +331,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * Set up toolbar
      */
@@ -336,4 +340,48 @@ public class MainActivity extends AppCompatActivity {
         binding.drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
     }
+
+    /**
+     * Handle back press event
+     */
+    public void showBackButton() {
+        // display back button
+        actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_back);
+        actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+
+        // observe detail movie to update toolbar title by movie title when navigate to movie detail screen
+        movieDetailViewModel.getMovieDetailMutableLiveData().observe(this, movie -> {
+            if (movie != null) {
+                binding.toolbar.setTitle(movie.getTitle());
+            }
+        });
+
+        // option menu is disabled
+        isOptionsMenuEnabled = false;
+        invalidateOptionsMenu(); // call onPrepareOptionsMenu to refresh options menu
+
+        // hide change layout button
+        binding.changeLayoutButton.setVisibility(View.GONE);
+    }
+
+    /**
+     * Show drawer toggle
+     */
+    public void showDrawerToggle() {
+        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+        setUpToolbar();
+
+        // set toolbar title
+        binding.toolbar.setTitle("Movies");
+
+        // option menu is enabled
+        isOptionsMenuEnabled = true;
+        invalidateOptionsMenu(); // call onPrepareOptionsMenu to refresh options menu
+
+        // show change layout button
+        binding.changeLayoutButton.setVisibility(View.VISIBLE);
+    }
+
+
 }

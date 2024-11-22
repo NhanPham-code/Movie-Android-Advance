@@ -66,7 +66,7 @@ public class MovieDetailFragment extends Fragment {
 
         if (movie != null) {
             // fill data to view
-            binding.tvReleaseDate.setText(movie.getTitle());
+            binding.tvReleaseDate.setText(movie.getReleaseDate());
             binding.tvRating.setText(String.valueOf(movie.getVoteAverage()));
             binding.tvOverview.setText(movie.getOverview());
             picasso.load(Constant.IMAGE_BASE_URL + movie.getPosterPath())

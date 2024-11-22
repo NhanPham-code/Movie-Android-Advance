@@ -62,61 +62,55 @@ public class MovieListFragment extends Fragment {
         // Inflate the layout for this fragment (view binding)
         binding = FragmentMovieListBinding.inflate(inflater, container, false);
 
+        // Restore category if state exists
+        if (savedInstanceState != null) {
+            category = savedInstanceState.getString("category", "popular");
+        }
+
         // Initialize RecyclerView
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         movieListAdapter = new MovieListAdapter();
-        //set view model for movie list adapter
+        // Set ViewModel for the movie list adapter
         movieListAdapter.setMovieListViewModel(movieListViewModel);
-        // set view model for movie list adapter
         movieListAdapter.setMovieDetailViewModel(movieDetailViewModel);
-        // add load state footer to show loading state in the footer
+        // Add load state footer to show loading state in the footer
         binding.recyclerView.setAdapter(movieListAdapter.withLoadStateFooter(new LoadingStateAdapter()));
 
+        // Check if data is already loaded; fetch from API only if not
+        if (savedInstanceState == null && movieListViewModel.getMovieList().getValue() == null) {
+            movieListViewModel.getMovieListFromApi(category);
+        }
 
-        // Fetch movie list from API
-        movieListViewModel.getMovieListFromApi(category);
-        // Observe movie list to update UI after get data from API
+        // Observe movie list to update UI after getting data from the API
         movieListViewModel.getMovieList().observe(getViewLifecycleOwner(), movies -> {
             movieListAdapter.submitData(getLifecycle(), movies);
             binding.idPBLoading.setVisibility(View.GONE);
         });
 
-
-        // observe category to load movie list by category in option menu in MainActivity
-        movieListViewModel.getCategory().observe(getViewLifecycleOwner(), category -> {
-            this.category = category;
-            movieListViewModel.getMovieListFromApi(category);
+        // Observe category to load movie list by category in the option menu in MainActivity
+        movieListViewModel.getCategory().observe(getViewLifecycleOwner(), newCategory -> {
+            if (!newCategory.equals(this.category)) {
+                this.category = newCategory;
+                movieListViewModel.getMovieListFromApi(newCategory);
+            }
         });
 
-
-        // Observe favorite movie to update UI (icon) when favorite movie is updated
+        // Observe favorite movie to update UI (icon) when the favorite movie is updated
         movieListViewModel.getUpdateFavoriteMovie().observe(getViewLifecycleOwner(), movie -> {
             movieListAdapter.updateItem(movie);
         });
 
-
-        // pull to refresh
+        // Pull to refresh
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             movieListViewModel.getMovieListFromApi(category);
             binding.swipeRefreshLayout.setRefreshing(false);
         });
 
-        // observe to change layout of movie list
+        // Observe to change layout of the movie list
         movieListViewModel.getGrid().observe(getViewLifecycleOwner(), this::changeLayout);
 
         return binding.getRoot();
     }
-
-    /**
-     * Load movie list by category (popular, top_rated, upcoming)
-     *
-     * @param category: category of movie list
-     */
-    public void loadMovieListByCategory(String category) {
-        this.category = category;
-        movieListViewModel.getMovieListFromApi(category);
-    }
-
 
     /**
      * Change layout of movie list

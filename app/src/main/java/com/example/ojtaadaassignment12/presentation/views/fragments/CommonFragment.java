@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.databinding.FragmentCommonBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
+import com.example.ojtaadaassignment12.presentation.MainActivity;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 
 import javax.inject.Inject;
@@ -89,6 +90,18 @@ public class CommonFragment extends Fragment {
         movieDetailViewModel.getMovieDetailMutableLiveData().observe(getViewLifecycleOwner(), movie -> {
             if (movie != null) {
                 navController.navigate(R.id.movieDetailFragment);
+            }
+        });
+
+        // Notify MainActivity about navigation changes
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if (requireActivity() instanceof MainActivity) {
+                MainActivity mainActivity = (MainActivity) requireActivity();
+                if (destination.getId() == R.id.movieDetailFragment) {
+                    mainActivity.showBackButton();
+                } else {
+                    mainActivity.showDrawerToggle();
+                }
             }
         });
 
