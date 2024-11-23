@@ -81,6 +81,7 @@ public class MovieDetailFragment extends Fragment {
 
             // get cast and crew of a movie
             movieDetailViewModel.getCastAndCrewFromApi(movie.getId());
+            // observe cast list to update UI when get data from API
             movieDetailViewModel.getCastListMutableLiveData().observe(getViewLifecycleOwner(), casts -> {
                 // set cast and crew to recycler view
                 CastAdapter castAdapter = new CastAdapter(casts);

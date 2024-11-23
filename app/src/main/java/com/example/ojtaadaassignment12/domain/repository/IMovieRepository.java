@@ -1,12 +1,8 @@
 package com.example.ojtaadaassignment12.domain.repository;
 
-import androidx.lifecycle.LiveData;
 import androidx.paging.PagingData;
 
-import com.example.ojtaadaassignment12.domain.models.CastOfMovie;
 import com.example.ojtaadaassignment12.domain.models.Movie;
-
-import java.util.List;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;

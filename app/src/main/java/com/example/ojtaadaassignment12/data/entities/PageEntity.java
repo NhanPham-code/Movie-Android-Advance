@@ -1,4 +1,4 @@
-package com.example.ojtaadaassignment12.domain.models;
+package com.example.ojtaadaassignment12.data.entities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,20 +8,20 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Page implements Parcelable {
+public class PageEntity implements Parcelable {
     @SerializedName("page")
     private int page;
     @SerializedName("results")
-    List<Movie> results;
+    List<MovieEntity> results;
     @SerializedName("total_pages")
     private int totalPages;
     @SerializedName("total_results")
     private int totalResults;
 
-    public Page() {
+    public PageEntity() {
     }
 
-    public Page(int page, int totalResults, int totalPages, List<Movie> results) {
+    public PageEntity(int page, int totalResults, int totalPages, List<MovieEntity> results) {
         this.page = page;
         this.totalResults = totalResults;
         this.totalPages = totalPages;
@@ -36,11 +36,11 @@ public class Page implements Parcelable {
         this.page = page;
     }
 
-    public List<Movie> getResults() {
+    public List<MovieEntity> getResults() {
         return results;
     }
 
-    public void setResults(List<Movie> results) {
+    public void setResults(List<MovieEntity> results) {
         this.results = results;
     }
 
@@ -61,12 +61,12 @@ public class Page implements Parcelable {
     }
 
     // Parcelable implementation
-    protected Page(Parcel in) {
+    protected PageEntity(Parcel in) {
         page = in.readInt();
         totalResults = in.readInt();
         totalPages = in.readInt();
         results = new ArrayList<>();
-        in.readList(results, Movie.class.getClassLoader());
+        in.readList(results, MovieEntity.class.getClassLoader());
     }
 
     @Override
@@ -82,15 +82,15 @@ public class Page implements Parcelable {
         return 0;
     }
 
-    public static final Creator<Page> CREATOR = new Creator<Page>() {
+    public static final Creator<PageEntity> CREATOR = new Creator<PageEntity>() {
         @Override
-        public Page createFromParcel(Parcel in) {
-            return new Page(in);
+        public PageEntity createFromParcel(Parcel in) {
+            return new PageEntity(in);
         }
 
         @Override
-        public Page[] newArray(int size) {
-            return new Page[size];
+        public PageEntity[] newArray(int size) {
+            return new PageEntity[size];
         }
     };
 }

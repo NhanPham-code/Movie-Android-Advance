@@ -92,6 +92,7 @@ public class MovieListFragment extends Fragment {
             if (!newCategory.equals(this.category)) {
                 this.category = newCategory;
                 movieListViewModel.getMovieListFromApi(newCategory);
+                binding.idPBLoading.setVisibility(View.VISIBLE);
             }
         });
 

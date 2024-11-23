@@ -1,4 +1,4 @@
-package com.example.ojtaadaassignment12.data.remotedatasource.api;
+package com.example.ojtaadaassignment12.data.datasource.remote.api;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;

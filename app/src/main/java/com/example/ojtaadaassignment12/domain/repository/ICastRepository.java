@@ -1,7 +1,6 @@
 package com.example.ojtaadaassignment12.domain.repository;
 
 import com.example.ojtaadaassignment12.domain.models.Cast;
-import com.example.ojtaadaassignment12.domain.models.CastOfMovie;
 
 import java.util.List;
 

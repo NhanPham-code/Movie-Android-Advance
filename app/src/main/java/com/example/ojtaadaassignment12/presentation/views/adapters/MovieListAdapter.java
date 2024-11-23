@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ojtaadaassignment12.R;
-import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.databinding.ItemMovieGridTypeBinding;
 import com.example.ojtaadaassignment12.databinding.ItemMovieListTypeBinding;
+import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.util.Constant;
@@ -120,7 +120,7 @@ public class MovieListAdapter extends PagingDataAdapter<Movie, MovieListAdapter.
 
 
     /**
-     * Update the favorite icon of the movie when it is clicked
+     * Update the favorite icon of the movie when the favorite movie is updated
      *
      * @param movie: movie to update
      */

@@ -1,7 +1,7 @@
-package com.example.ojtaadaassignment12.data.remotedatasource;
+package com.example.ojtaadaassignment12.data.datasource.remote;
 
-import com.example.ojtaadaassignment12.data.remotedatasource.api.MovieApiService;
-import com.example.ojtaadaassignment12.domain.models.Cast;
+import com.example.ojtaadaassignment12.data.datasource.remote.api.MovieApiService;
+import com.example.ojtaadaassignment12.data.entities.CastEntity;
 
 import java.util.List;
 
@@ -23,9 +23,9 @@ public class CastPagingSource {
      * @param movieId: id of the movie
      * @return list of cast and crew
      */
-    public Single<List<Cast>> getCastAndCrew(long movieId) {
+    public Single<List<CastEntity>> getCastAndCrew(long movieId) {
         // get cast and crew of a movie
         return movieApiService.getMovieCast(movieId)
-                .map(castOfMovie -> castOfMovie.getCastList());
+                .map(castResponseEntity -> castResponseEntity.getCastList());
     }
 }

@@ -1,6 +1,6 @@
 package com.example.ojtaadaassignment12.di;
 
-import com.example.ojtaadaassignment12.data.remotedatasource.CastPagingSource;
+import com.example.ojtaadaassignment12.data.datasource.remote.CastPagingSource;
 import com.example.ojtaadaassignment12.data.repository.CastRepositoryImpl;
 import com.example.ojtaadaassignment12.domain.repository.ICastRepository;
 

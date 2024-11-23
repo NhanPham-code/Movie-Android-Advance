@@ -1,7 +1,7 @@
 package com.example.ojtaadaassignment12.di;
 
-import com.example.ojtaadaassignment12.data.remotedatasource.api.MovieApiService;
-import com.example.ojtaadaassignment12.data.remotedatasource.api.UnsafeOkHttpClient;
+import com.example.ojtaadaassignment12.data.datasource.remote.api.MovieApiService;
+import com.example.ojtaadaassignment12.data.datasource.remote.api.UnsafeOkHttpClient;
 
 import javax.inject.Singleton;
 

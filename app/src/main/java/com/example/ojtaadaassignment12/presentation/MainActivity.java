@@ -25,10 +25,10 @@ import com.example.ojtaadaassignment12.di.MyApplication;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.ViewPagerAdapter;
+import com.example.ojtaadaassignment12.presentation.views.fragments.AboutFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.CommonFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.FavoriteListFragment;
-import com.example.ojtaadaassignment12.presentation.views.fragments.MovieDetailFragment;
-import com.example.ojtaadaassignment12.presentation.views.fragments.MovieListFragment;
+import com.example.ojtaadaassignment12.presentation.views.fragments.SettingsFragment;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     List<Fragment> fragmentList;
     CommonFragment commonFragment;
     FavoriteListFragment favoriteListFragment;
+    SettingsFragment settingsFragment;
+    AboutFragment aboutFragment;
 
     // use check visible options menu
     private boolean isOptionsMenuEnabled = true;
@@ -79,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         getSupportFragmentManager().putFragment(outState, "commonFragment", commonFragment);
         getSupportFragmentManager().putFragment(outState, "favoriteListFragment", favoriteListFragment);
+        getSupportFragmentManager().putFragment(outState, "settingsFragment", settingsFragment);
+        getSupportFragmentManager().putFragment(outState, "aboutFragment", aboutFragment);
     }
 
 
@@ -98,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
 
             favoriteListFragment = (FavoriteListFragment) getSupportFragmentManager().getFragment(savedInstanceState, "favoriteListFragment");
 
+            settingsFragment = (SettingsFragment) getSupportFragmentManager().getFragment(savedInstanceState, "settingsFragment");
+
+            aboutFragment = (AboutFragment) getSupportFragmentManager().getFragment(savedInstanceState, "aboutFragment");
+
             // set up view pager and tab layout
             setUpTabLayoutAndViewPager();
 
@@ -107,6 +115,10 @@ public class MainActivity extends AppCompatActivity {
 
             favoriteListFragment = FavoriteListFragment.newInstance();
 
+            settingsFragment = new SettingsFragment();
+
+            aboutFragment = AboutFragment.newInstance();
+
             // set up view pager and tab layout
             setUpTabLayoutAndViewPager();
         }
@@ -114,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         // set up change layout movie list button
         setBtnChangeLayout();
 
-        // Set up tab change listener to change toolbar title...
+        // Set up tab change listener to change toolbar title
         setUpTabChangeListener();
 
         // Inject MovieListComponent by MyApplication to use MovieListViewModel to observe favorite movies count
@@ -291,6 +303,8 @@ public class MainActivity extends AppCompatActivity {
         fragmentList = new ArrayList<>();
         fragmentList.add(commonFragment);
         fragmentList.add(favoriteListFragment);
+        fragmentList.add(settingsFragment);
+        fragmentList.add(aboutFragment);
 
 
         // set view pager with fragments

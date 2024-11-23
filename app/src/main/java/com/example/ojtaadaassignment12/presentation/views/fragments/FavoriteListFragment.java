@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.paging.PagingData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
@@ -13,7 +12,6 @@ import android.view.ViewGroup;
 
 import com.example.ojtaadaassignment12.databinding.FragmentMovieListBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
-import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.LoadingStateAdapter;
 import com.example.ojtaadaassignment12.presentation.views.adapters.MovieListAdapter;

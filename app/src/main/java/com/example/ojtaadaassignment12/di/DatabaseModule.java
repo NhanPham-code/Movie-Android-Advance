@@ -4,8 +4,8 @@ import android.content.Context;
 
 import androidx.room.Room;
 
-import com.example.ojtaadaassignment12.data.localdatasource.FavoriteMovieDao;
-import com.example.ojtaadaassignment12.data.localdatasource.FavoriteMovieDatabase;
+import com.example.ojtaadaassignment12.data.datasource.local.FavoriteMovieDao;
+import com.example.ojtaadaassignment12.data.datasource.local.FavoriteMovieDatabase;
 
 import javax.inject.Singleton;
 

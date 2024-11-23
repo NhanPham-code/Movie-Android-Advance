@@ -1,19 +1,14 @@
 package com.example.ojtaadaassignment12.domain.usecase;
 
-import androidx.lifecycle.LiveData;
 import androidx.paging.PagingData;
 
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.repository.IMovieRepository;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class FavoriteUseCase {
 

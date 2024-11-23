@@ -13,9 +13,6 @@ import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.usecase.FavoriteUseCase;
 import com.example.ojtaadaassignment12.domain.usecase.GetMovieUseCase;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 

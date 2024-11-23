@@ -4,64 +4,79 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
-import com.google.gson.annotations.SerializedName;
-
-@Entity(tableName = "favorite_movie_table")
 public class Movie implements Parcelable {
-    @SerializedName("adult")
     private boolean adult;
-    @SerializedName("backdrop_path")
     private String backdropPath;
-    @SerializedName("id")
-    @PrimaryKey
     private long id;
-    @SerializedName("original_language")
     private String originalLanguage;
-    @SerializedName("original_title")
     private String originalTitle;
-    @SerializedName("overview")
     private String overview;
-    @SerializedName("popularity")
     private double popularity;
-    @SerializedName("poster_path")
     private String posterPath;
-    @SerializedName("release_date")
     private String releaseDate;
-    @SerializedName("title")
     private String title;
-    @SerializedName("video")
     private boolean video;
-    @SerializedName("vote_average")
     private double voteAverage;
-    @SerializedName("vote_count")
     private int voteCount;
-
-    private int isFavorite; // 0: not favorite, 1: favorite
+    private int isFavorite;
 
     public Movie() {
     }
 
-    public Movie(boolean adult, String backdropPath, int[] genreIds, long id, String originalLanguage, String originalTitle, String overview, double popularity, String posterPath, String releaseDate, String title, boolean video, double voteAverage, int voteCount) {
-        this.adult = adult;
-        this.backdropPath = backdropPath;
-        //this.genreIds = genreIds;
-        this.id = id;
-        this.originalLanguage = originalLanguage;
-        this.originalTitle = originalTitle;
-        this.overview = overview;
-        this.popularity = popularity;
-        this.posterPath = posterPath;
-        this.releaseDate = releaseDate;
-        this.title = title;
-        this.video = video;
-        this.voteAverage = voteAverage;
-        this.voteCount = voteCount;
-        isFavorite = 0;
+    protected Movie(Parcel in) {
+        adult = in.readByte() != 0;
+        backdropPath = in.readString();
+        id = in.readLong();
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
+        overview = in.readString();
+        popularity = in.readDouble();
+        posterPath = in.readString();
+        releaseDate = in.readString();
+        title = in.readString();
+        video = in.readByte() != 0;
+        voteAverage = in.readDouble();
+        voteCount = in.readInt();
+        isFavorite = in.readInt();
     }
 
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (adult ? 1 : 0));
+        dest.writeString(backdropPath);
+        dest.writeLong(id);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(overview);
+        dest.writeDouble(popularity);
+        dest.writeString(posterPath);
+        dest.writeString(releaseDate);
+        dest.writeString(title);
+        dest.writeByte((byte) (video ? 1 : 0));
+        dest.writeDouble(voteAverage);
+        dest.writeInt(voteCount);
+        dest.writeInt(isFavorite);
+    }
+
+    // Getters and Setters
     public boolean isAdult() {
         return adult;
     }
@@ -77,14 +92,6 @@ public class Movie implements Parcelable {
     public void setBackdropPath(String backdropPath) {
         this.backdropPath = backdropPath;
     }
-
-//    public int[] getGenreIds() {
-//        return genreIds;
-//    }
-//
-//    public void setGenreIds(int[] genreIds) {
-//        this.genreIds = genreIds;
-//    }
 
     public long getId() {
         return id;
@@ -182,69 +189,10 @@ public class Movie implements Parcelable {
         this.isFavorite = isFavorite;
     }
 
-    // Parcelable implementation
-    protected Movie(Parcel in) {
-        adult = in.readByte() != 0;
-        backdropPath = in.readString();
-        //genreIds = in.createIntArray();
-        id = in.readLong();
-        originalLanguage = in.readString();
-        originalTitle = in.readString();
-        overview = in.readString();
-        popularity = in.readDouble();
-        posterPath = in.readString();
-        releaseDate = in.readString();
-        title = in.readString();
-        video = in.readByte() != 0;
-        voteAverage = in.readDouble();
-        voteCount = in.readInt();
-        isFavorite = in.readInt();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (adult ? 1 : 0));
-        dest.writeString(backdropPath);
-        //dest.writeIntArray(genreIds);
-        dest.writeLong(id);
-        dest.writeString(originalLanguage);
-        dest.writeString(originalTitle);
-        dest.writeString(overview);
-        dest.writeDouble(popularity);
-        dest.writeString(posterPath);
-        dest.writeString(releaseDate);
-        dest.writeString(title);
-        dest.writeByte((byte) (video ? 1 : 0));
-        dest.writeDouble(voteAverage);
-        dest.writeInt(voteCount);
-        dest.writeInt(isFavorite);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
-        @Override
-        public Movie createFromParcel(Parcel in) {
-            return new Movie(in);
-        }
-
-        @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
-        }
-    };
-
-
     @Override
     public boolean equals(@Nullable Object obj) {
-
         if (this == obj) return true;
-
         if (obj == null || getClass() != obj.getClass()) return false;
-
         Movie movie = (Movie) obj;
         return id == movie.id;
     }

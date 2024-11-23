@@ -1,19 +1,19 @@
-package com.example.ojtaadaassignment12.domain.models;
+package com.example.ojtaadaassignment12.data.entities;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class CastOfMovie {
+public class CastResponseEntity {
     @SerializedName("id")
     private int id;
     @SerializedName("cast")
-    private List<Cast> castList;
+    private List<CastEntity> castList;
 
-    public CastOfMovie() {
+    public CastResponseEntity() {
     }
 
-    public CastOfMovie(int id, List<Cast> castList) {
+    public CastResponseEntity(int id, List<CastEntity> castList) {
         this.id = id;
         this.castList = castList;
     }
@@ -26,11 +26,11 @@ public class CastOfMovie {
         this.id = id;
     }
 
-    public List<Cast> getCastList() {
+    public List<CastEntity> getCastList() {
         return castList;
     }
 
-    public void setCastList(List<Cast> castList) {
+    public void setCastList(List<CastEntity> castList) {
         this.castList = castList;
     }
 }

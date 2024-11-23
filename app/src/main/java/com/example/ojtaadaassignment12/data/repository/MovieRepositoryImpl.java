@@ -1,19 +1,18 @@
 package com.example.ojtaadaassignment12.data.repository;
 
-import androidx.lifecycle.LiveData;
 import androidx.paging.Pager;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
+import androidx.paging.PagingDataTransforms;
 import androidx.paging.rxjava3.PagingRx;
 
-import com.example.ojtaadaassignment12.data.localdatasource.FavoriteMovieDao;
-import com.example.ojtaadaassignment12.data.localdatasource.FavoritePagingSource;
-import com.example.ojtaadaassignment12.data.remotedatasource.MoviePagingSource;
-import com.example.ojtaadaassignment12.domain.models.CastOfMovie;
+import com.example.ojtaadaassignment12.data.datasource.local.FavoriteMovieDao;
+import com.example.ojtaadaassignment12.data.datasource.local.FavoritePagingSource;
+import com.example.ojtaadaassignment12.data.datasource.remote.MoviePagingSource;
+import com.example.ojtaadaassignment12.data.entities.MovieEntity;
+import com.example.ojtaadaassignment12.data.mapper.MovieMapper;
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.repository.IMovieRepository;
-
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -54,7 +53,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
     @Override
     public Flowable<PagingData<Movie>> getMovies(String category) {
 
-        Pager<Integer, Movie> pager = new Pager<>(
+        Pager<Integer, MovieEntity> pager = new Pager<>(
                 new PagingConfig(
                         5,
                         1,
@@ -64,10 +63,11 @@ public class MovieRepositoryImpl implements IMovieRepository {
                 ), () -> {
             moviePagingSource.setCategory(category);
             return moviePagingSource;
-        }
-        );
+        });
 
-        return PagingRx.getFlowable(pager);
+        // Map the MovieEntity -> Movie using PagingDataTransforms.map
+        return PagingRx.getFlowable(pager)
+                .map(pagingData -> PagingDataTransforms.map(pagingData, Runnable::run, MovieMapper::toDomain));
     }
 
 
@@ -79,7 +79,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
     @Override
     public Flowable<PagingData<Movie>> getFavoriteMovies() {
 
-        Pager<Integer, Movie> pager = new Pager<>(
+        Pager<Integer, MovieEntity> pager = new Pager<>(
                 new PagingConfig(
                         5,
                         1,
@@ -89,15 +89,23 @@ public class MovieRepositoryImpl implements IMovieRepository {
                 ), () -> favoritePagingSource
         );
 
-        return PagingRx.getFlowable(pager);
+        // Map the MovieEntity -> Movie using PagingDataTransforms.map
+        return PagingRx.getFlowable(pager)
+                .map(pagingData -> PagingDataTransforms.map(pagingData, Runnable::run, MovieMapper::toDomain));
     }
 
+    /**
+     * Get favorite movie list by title from local database
+     *
+     * @param title: movie title
+     * @return Flowable<PagingData < Movie>> favorite movie list
+     */
     @Override
     public Flowable<PagingData<Movie>> getFavoriteMoviesByTitle(String title) {
 
         favoritePagingSource.setTitleSearch(title);
 
-        Pager<Integer, Movie> pager = new Pager<>(
+        Pager<Integer, MovieEntity> pager = new Pager<>(
                 new PagingConfig(
                         5,
                         1,
@@ -107,7 +115,9 @@ public class MovieRepositoryImpl implements IMovieRepository {
                 ), () -> favoritePagingSource
         );
 
-        return PagingRx.getFlowable(pager);
+        // Map the MovieEntity -> Movie using PagingDataTransforms.map
+        return PagingRx.getFlowable(pager)
+                .map(pagingData -> PagingDataTransforms.map(pagingData, Runnable::run, MovieMapper::toDomain));
     }
 
 
@@ -118,7 +128,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
      */
     @Override
     public void insertFavoriteMovie(Movie movie) {
-        favoriteMovieDao.insertFavoriteMovie(movie);
+        favoriteMovieDao.insertFavoriteMovie(MovieMapper.toEntity(movie));
     }
 
     /**
@@ -131,6 +141,11 @@ public class MovieRepositoryImpl implements IMovieRepository {
         favoriteMovieDao.deleteFavoriteMovieById(movie.getId());
     }
 
+    /**
+     * Get favorite movie count from local database
+     *
+     * @return Single<Integer> favorite movie count
+     */
     @Override
     public Single<Integer> getFavoriteMoviesCount() {
         return favoriteMovieDao.getFavoriteMoviesCount();
