@@ -27,23 +27,12 @@ public class CommonFragment extends Fragment {
     FragmentCommonBinding fragmentCommonBinding;
     NavController navController;
 
+    MainFragment mainFragment;
     MovieListFragment movieListFragment;
     MovieDetailFragment movieDetailFragment;
 
-    public MovieListFragment getMovieListFragment() {
-        return movieListFragment;
-    }
-
-    public MovieDetailFragment getMovieDetailFragment() {
-        return movieDetailFragment;
-    }
-
-    public void setMovieListFragment(MovieListFragment movieListFragment) {
-        this.movieListFragment = movieListFragment;
-    }
-
-    public void setMovieDetailFragment(MovieDetailFragment movieDetailFragment) {
-        this.movieDetailFragment = movieDetailFragment;
+    public void setMainFragment(MainFragment mainFragment) {
+        this.mainFragment = mainFragment;
     }
 
     @Inject
@@ -95,13 +84,10 @@ public class CommonFragment extends Fragment {
 
         // Notify MainActivity about navigation changes
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (requireActivity() instanceof MainActivity) {
-                MainActivity mainActivity = (MainActivity) requireActivity();
-                if (destination.getId() == R.id.movieDetailFragment) {
-                    mainActivity.showBackButton();
-                } else {
-                    mainActivity.showDrawerToggle();
-                }
+            if (destination.getId() == R.id.movieDetailFragment) {
+                mainFragment.showBackButton();
+            } else {
+                mainFragment.showDrawerToggle();
             }
         });
 

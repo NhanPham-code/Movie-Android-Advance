@@ -5,6 +5,7 @@ import android.app.Application;
 import com.example.ojtaadaassignment12.presentation.MainActivity;
 import com.example.ojtaadaassignment12.presentation.views.fragments.CommonFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.FavoriteListFragment;
+import com.example.ojtaadaassignment12.presentation.views.fragments.MainFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieDetailFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieListFragment;
 
@@ -28,8 +29,8 @@ public interface AppComponent {
     // register inject for favorite movie list fragment
     void injectFavoriteListFragment(FavoriteListFragment fragment);
 
-    // register inject for main activity
-    void injectMainActivity(MainActivity mainActivity);
+    // register inject for main fragment
+    void injectMainFragment(MainFragment fragment);
 
     // register inject for common fragment
     void injectCommonFragment(CommonFragment commonFragment);
