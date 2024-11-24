@@ -23,7 +23,7 @@ public class GetMovieUseCase {
      * @param category: the category of the movies to fetch
      * @return a Flowable of PagingData<Movie>
      */
-    public Flowable<PagingData<Movie>> execute(String category) {
-        return iMovieRepository.getMovies(category);
+    public Flowable<PagingData<Movie>> execute(String category, String rating, String releaseYear, String sortBy) {
+        return iMovieRepository.getMovies(category, rating, releaseYear, sortBy);
     }
 }

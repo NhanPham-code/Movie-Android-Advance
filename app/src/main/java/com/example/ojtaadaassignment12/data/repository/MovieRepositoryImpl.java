@@ -51,7 +51,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
      * @return Flowable<PagingData < Movie>> movie list
      */
     @Override
-    public Flowable<PagingData<Movie>> getMovies(String category) {
+    public Flowable<PagingData<Movie>> getMovies(String category, String rating, String releaseYear, String sortBy) {
 
         Pager<Integer, MovieEntity> pager = new Pager<>(
                 new PagingConfig(
@@ -62,6 +62,9 @@ public class MovieRepositoryImpl implements IMovieRepository {
                         10
                 ), () -> {
             moviePagingSource.setCategory(category);
+            moviePagingSource.setRating(rating);
+            moviePagingSource.setReleaseYear(releaseYear);
+            moviePagingSource.setSortBy(sortBy);
             return moviePagingSource;
         });
 

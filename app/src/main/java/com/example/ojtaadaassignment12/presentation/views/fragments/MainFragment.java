@@ -420,7 +420,9 @@ public class MainFragment extends Fragment {
     public void showBackButton() {
         // display back button
         actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_back);
+        // set action bar drawer toggle to false to disable drawer toggle
         actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+        // set back button click listener (for common fragment handle back press)
         binding.toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
 
         // observe detail movie to update toolbar title by movie title when navigate to movie detail screen

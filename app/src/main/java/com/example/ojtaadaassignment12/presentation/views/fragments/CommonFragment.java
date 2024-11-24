@@ -91,7 +91,7 @@ public class CommonFragment extends Fragment {
             }
         });
 
-        // back button handler
+        // handle back button press
         requireActivity().getOnBackPressedDispatcher().addCallback(requireActivity(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {

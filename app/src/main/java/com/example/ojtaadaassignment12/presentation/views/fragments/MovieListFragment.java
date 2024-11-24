@@ -1,12 +1,15 @@
 package com.example.ojtaadaassignment12.presentation.views.fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -21,13 +24,17 @@ import com.example.ojtaadaassignment12.presentation.views.adapters.MovieListAdap
 import javax.inject.Inject;
 
 
-public class MovieListFragment extends Fragment {
+public class MovieListFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     FragmentMovieListBinding binding;
 
     MovieListAdapter movieListAdapter;
 
-    String category = "popular"; // default category for first time
+    SharedPreferences sharedPreferences;
+    private String category;
+    private String rating;
+    private String releaseYear;
+    private String sortBy;
 
     @Inject
     MovieListViewModel movieListViewModel;
@@ -54,6 +61,10 @@ public class MovieListFragment extends Fragment {
 
         // inject MovieListComponent by MyApplication
         ((MyApplication) requireActivity().getApplication()).appComponent.injectListFragment(this);
+
+        // get shared preferences
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -62,10 +73,8 @@ public class MovieListFragment extends Fragment {
         // Inflate the layout for this fragment (view binding)
         binding = FragmentMovieListBinding.inflate(inflater, container, false);
 
-        // Restore category if state exists
-        if (savedInstanceState != null) {
-            category = savedInstanceState.getString("category", "popular");
-        }
+        // Get data settings from shared preferences
+        getDataSettings();
 
         // Initialize RecyclerView
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -76,9 +85,10 @@ public class MovieListFragment extends Fragment {
         // Add load state footer to show loading state in the footer
         binding.recyclerView.setAdapter(movieListAdapter.withLoadStateFooter(new LoadingStateAdapter()));
 
-        // Check if data is already loaded; fetch from API only if not
+        // Check if data is already loaded; if not, get data from the API
         if (savedInstanceState == null && movieListViewModel.getMovieList().getValue() == null) {
-            movieListViewModel.getMovieListFromApi(category);
+            // Get movie list by category and sort, filter
+            movieListViewModel.getMovieListFromApi(category, rating, releaseYear, sortBy);
         }
 
         // Observe movie list to update UI after getting data from the API
@@ -91,7 +101,8 @@ public class MovieListFragment extends Fragment {
         movieListViewModel.getCategory().observe(getViewLifecycleOwner(), newCategory -> {
             if (!newCategory.equals(this.category)) {
                 this.category = newCategory;
-                movieListViewModel.getMovieListFromApi(newCategory);
+                // Update movie list by category and sort, filter
+                movieListViewModel.getMovieListFromApi(newCategory, rating, releaseYear, sortBy);
                 binding.idPBLoading.setVisibility(View.VISIBLE);
             }
         });
@@ -103,7 +114,7 @@ public class MovieListFragment extends Fragment {
 
         // Pull to refresh
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
-            movieListViewModel.getMovieListFromApi(category);
+            movieListViewModel.getMovieListFromApi(category, rating, releaseYear, sortBy);
             binding.swipeRefreshLayout.setRefreshing(false);
         });
 
@@ -112,6 +123,8 @@ public class MovieListFragment extends Fragment {
 
         return binding.getRoot();
     }
+
+
 
     /**
      * Change layout of movie list
@@ -126,5 +139,29 @@ public class MovieListFragment extends Fragment {
         }
         movieListAdapter.setGridLayout(isGridLayout);
         binding.recyclerView.setAdapter(movieListAdapter);
+    }
+
+    /**
+     * Get data settings from shared preferences
+     */
+    private void getDataSettings() {
+        category = sharedPreferences.getString("category", "popular");
+        rating = sharedPreferences.getString("rating", "1");
+        releaseYear = sharedPreferences.getString("releaseYear", "1970");
+        sortBy = sharedPreferences.getString("sortBy", "rating");
+    }
+
+    /**
+     * Update movie list by category and sort, filter after changing settings
+     * @param sharedPreferences shared preferences
+     * @param s key of the changed setting
+     */
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String s) {
+        // Get data settings from shared preferences
+        getDataSettings();
+
+        // Update movie list by category and sort, filter
+        movieListViewModel.getMovieListFromApi(category, rating, releaseYear, sortBy);
     }
 }

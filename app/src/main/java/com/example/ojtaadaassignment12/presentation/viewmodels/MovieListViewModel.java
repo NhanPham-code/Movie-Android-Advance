@@ -134,9 +134,9 @@ public class MovieListViewModel extends ViewModel {
     /**
      * Fetch movies from the repository and set the value of movieList
      */
-    public void getMovieListFromApi(String category) {
+    public void getMovieListFromApi(String category, String rating, String releaseYear, String sortBy) {
         // Fetch movies from the MovieService
-        Flowable<PagingData<Movie>> movies = getMovieUseCase.execute(category);
+        Flowable<PagingData<Movie>> movies = getMovieUseCase.execute(category, rating, releaseYear, sortBy);
 
         // Cache the movies to avoid fetching them again when the activity is recreated
         cachedMovies = PagingRx.cachedIn(movies, ViewModelKt.getViewModelScope(this));

@@ -6,7 +6,7 @@
         <ListPreference
             app:key="category"
             app:title="Category"
-            app:defaultValue="Popular"
+            app:defaultValue="popular"
             app:entries="@array/category_entries"
             app:entryValues="@array/category_values"
             app:useSimpleSummaryProvider="true" />
@@ -14,8 +14,8 @@
         <Preference
             app:key="rating"
             app:title="Movie with rate from"
-            android:defaultValue="0"
-            app:summary="0"
+            android:defaultValue="1"
+            app:summary="1"
             app:useSimpleSummaryProvider="true"
             />
 
@@ -31,7 +31,7 @@
 
         <ListPreference
             app:key="sortBy"
-            app:defaultValue="Rating"
+            app:defaultValue="rating"
             app:entries="@array/sort_entries"
             app:entryValues="@array/sort_values"
             app:title="Sort By"

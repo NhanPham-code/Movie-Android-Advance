@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Single;
 public interface IMovieRepository {
 
     // get movie list by category from API
-    Flowable<PagingData<Movie>> getMovies(String category);
+    Flowable<PagingData<Movie>> getMovies(String category, String rating, String releaseYear, String sortBy);
 
     // get favorite movie list from local database
     Flowable<PagingData<Movie>> getFavoriteMovies();

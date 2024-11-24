@@ -17,9 +17,9 @@
     </string-array>
 
     <string-array name="category_values">
-        <item>Popular</item>
-        <item>Top Rated</item>
-        <item>Upcoming</item>
-        <item>Now Playing</item>
+        <item>popular</item>
+        <item>top_rated</item>
+        <item>upcoming</item>
+        <item>now_playing</item>
     </string-array>
 </resources>

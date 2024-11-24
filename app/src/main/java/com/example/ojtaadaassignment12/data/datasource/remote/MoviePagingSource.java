@@ -11,6 +11,7 @@ import com.example.ojtaadaassignment12.data.datasource.remote.api.MovieApiServic
 import com.example.ojtaadaassignment12.data.entities.MovieEntity;
 import com.example.ojtaadaassignment12.data.entities.PageEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -28,6 +29,9 @@ public class MoviePagingSource extends RxPagingSource<Integer, MovieEntity> {
     FavoriteMovieDao movieDao;
 
     private String category;
+    private String rating;
+    private String releaseYear;
+    private String sortBy;
 
     @Inject
     public MoviePagingSource(MovieApiService movieApiService, FavoriteMovieDao movieDao) {
@@ -37,6 +41,15 @@ public class MoviePagingSource extends RxPagingSource<Integer, MovieEntity> {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+    public void setReleaseYear(String releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+    public void setSortBy(String sortBy) {
+        this.sortBy = sortBy;
     }
 
 
@@ -61,9 +74,29 @@ public class MoviePagingSource extends RxPagingSource<Integer, MovieEntity> {
 
         // use zip operator to combine the response of movies and favorite movies
         return Single.zip(moviesSingle, favoriteMoviesSingle, (response, favoriteMovies) -> {
+            // movie list from API
             List<MovieEntity> movies = response.getResults();
 
+            // filter movie list by rating, release year
+            List<MovieEntity> filteredMovies = new ArrayList<>();
+
             for (MovieEntity movie : movies) {
+                if (movie.getVoteAverage() >= Double.parseDouble(rating) &&
+                        Integer.parseInt(movie.getReleaseDate().substring(0, 4)) >= Integer.parseInt(releaseYear)) {
+                    filteredMovies.add(movie);
+                }
+            }
+
+            // sort movie list
+            if (sortBy.equals("Release Year")) {
+                filteredMovies.sort((o1, o2) -> o2.getReleaseDate().compareTo(o1.getReleaseDate()));
+            } else {
+                filteredMovies.sort((o1, o2) -> Double.compare(o2.getVoteAverage(), o1.getVoteAverage()));
+            }
+
+
+            // sync favorite movies with movies
+            for (MovieEntity movie : filteredMovies) {
                 for (MovieEntity favoriteMovie : favoriteMovies) {
                     if (movie.getId() == favoriteMovie.getId()) {
                         movie.setIsFavorite(1);
@@ -72,8 +105,9 @@ public class MoviePagingSource extends RxPagingSource<Integer, MovieEntity> {
                 }
             }
 
+
             return new LoadResult.Page<>(
-                    movies,
+                    filteredMovies,
                     page == 1 ? null : page - 1, // page before current page
                     page < response.getTotalPages() ? page + 1 : null // page after current page
             );
