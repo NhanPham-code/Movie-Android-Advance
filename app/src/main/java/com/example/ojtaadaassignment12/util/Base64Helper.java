@@ -1,4 +1,4 @@
-package com.example.ojtaadaassignment12.presentation.services;
+package com.example.ojtaadaassignment12.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

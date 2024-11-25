@@ -85,7 +85,7 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
         // Add load state footer to show loading state in the footer
         binding.recyclerView.setAdapter(movieListAdapter.withLoadStateFooter(new LoadingStateAdapter()));
 
-        // Check if data is already loaded; if not, get data from the API
+        // Check if data is already loaded; if not, get data from the API (first time)
         if (savedInstanceState == null && movieListViewModel.getMovieList().getValue() == null) {
             // Get movie list by category and sort, filter
             movieListViewModel.getMovieListFromApi(category, rating, releaseYear, sortBy);
@@ -112,7 +112,7 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
             movieListAdapter.updateItem(movie);
         });
 
-        // Pull to refresh
+        //swipe to refresh
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             movieListViewModel.getMovieListFromApi(category, rating, releaseYear, sortBy);
             binding.swipeRefreshLayout.setRefreshing(false);

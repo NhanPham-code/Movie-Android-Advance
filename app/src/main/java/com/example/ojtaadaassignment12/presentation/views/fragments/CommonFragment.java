@@ -16,7 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.databinding.FragmentCommonBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
-import com.example.ojtaadaassignment12.presentation.MainActivity;
+import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 
 import javax.inject.Inject;
@@ -28,8 +28,7 @@ public class CommonFragment extends Fragment {
     NavController navController;
 
     MainFragment mainFragment;
-    MovieListFragment movieListFragment;
-    MovieDetailFragment movieDetailFragment;
+
 
     public void setMainFragment(MainFragment mainFragment) {
         this.mainFragment = mainFragment;
@@ -77,7 +76,7 @@ public class CommonFragment extends Fragment {
 
         // observe movie detail view model to navigate to movie detail screen
         movieDetailViewModel.getMovieDetailMutableLiveData().observe(getViewLifecycleOwner(), movie -> {
-            if (movie != null) {
+            if (movie != null && movie.getId() != 0) {
                 navController.navigate(R.id.movieDetailFragment);
             }
         });
@@ -85,9 +84,13 @@ public class CommonFragment extends Fragment {
         // Notify MainActivity about navigation changes
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.movieDetailFragment) {
-                mainFragment.showBackButton();
+                // set appbar in detail fragment
+                mainFragment.setAppbarInDetailFragment();
             } else {
-                mainFragment.showDrawerToggle();
+                // detail movie in viewmodel is null for next time click
+                movieDetailViewModel.setMovieDetailMutableLiveData(new Movie());
+                // set appbar in list fragment
+                mainFragment.setAppbarInListFragment();
             }
         });
 
@@ -96,7 +99,7 @@ public class CommonFragment extends Fragment {
             @Override
             public void handleOnBackPressed() {
                 if (navController.getCurrentDestination().getId() == R.id.movieDetailFragment) {
-                    navController.popBackStack();
+                    navController.popBackStack(R.id.movieListFragment, false);
                 } else {
                     requireActivity().finish();
                 }
@@ -110,13 +113,15 @@ public class CommonFragment extends Fragment {
     /**
      * Save the state of the NavController in the bundle. This is necessary to restore the state of the NavController
      * User rote screen orientation change.
-     *
+     * NavController will handle the state of the fragments
      * @param outState Bundle in which to place your saved state.
      */
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        Bundle navState = navController.saveState();
-        outState.putBundle("nav_state", navState);
+        if(navController != null) {
+            Bundle navState = navController.saveState();
+            outState.putBundle("nav_state", navState);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.example.ojtaadaassignment12.data.repository;
 
-import com.example.ojtaadaassignment12.data.datasource.remote.CastPagingSource;
+import com.example.ojtaadaassignment12.data.datasource.remote.CastDataSource;
 import com.example.ojtaadaassignment12.data.mapper.CastMapper;
 import com.example.ojtaadaassignment12.domain.models.Cast;
 import com.example.ojtaadaassignment12.domain.repository.ICastRepository;
@@ -14,10 +14,10 @@ import io.reactivex.rxjava3.core.Single;
 
 public class CastRepositoryImpl implements ICastRepository {
 
-    private final CastPagingSource castPagingSource;
+    private final CastDataSource castPagingSource;
 
     @Inject
-    public CastRepositoryImpl(CastPagingSource castPagingSource) {
+    public CastRepositoryImpl(CastDataSource castPagingSource) {
         this.castPagingSource = castPagingSource;
     }
 

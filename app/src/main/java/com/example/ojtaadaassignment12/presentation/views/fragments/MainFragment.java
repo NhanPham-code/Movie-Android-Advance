@@ -9,7 +9,9 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
+import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
@@ -18,7 +20,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ojtaadaassignment12.R;
@@ -26,7 +29,9 @@ import com.example.ojtaadaassignment12.databinding.FragmentMainBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
+import com.example.ojtaadaassignment12.presentation.viewmodels.UserProfileViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.ViewPagerAdapter;
+import com.example.ojtaadaassignment12.util.Base64Helper;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -59,7 +64,9 @@ public class MainFragment extends Fragment {
     AboutFragment aboutFragment;
 
     // use check visible options menu
-    private boolean isOptionsMenuEnabled = true;
+    private boolean isOptionsMenuEnabled;
+
+    private Base64Helper helper;
 
     // View models
     @Inject
@@ -67,6 +74,9 @@ public class MainFragment extends Fragment {
 
     @Inject
     MovieDetailViewModel movieDetailViewModel;
+
+    @Inject
+    UserProfileViewModel userProfileViewModel;
 
     public MainFragment() {
         // Required empty public constructor
@@ -85,6 +95,8 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         ((MyApplication) requireActivity().getApplication()).appComponent.injectMainFragment(this);
+
+        helper = new Base64Helper();
     }
 
     @Override
@@ -100,6 +112,9 @@ public class MainFragment extends Fragment {
         if (savedInstanceState != null) {
             // restore fragments when activity is recreated
             commonFragment = (CommonFragment) requireActivity().getSupportFragmentManager().getFragment(savedInstanceState, "commonFragment");
+            if(commonFragment != null) {
+                commonFragment.setMainFragment(this);
+            }
 
             favoriteListFragment = (FavoriteListFragment) requireActivity().getSupportFragmentManager().getFragment(savedInstanceState, "favoriteListFragment");
 
@@ -146,7 +161,36 @@ public class MainFragment extends Fragment {
         // show all reminder click
         setClickShowAllReminderButton();
 
+
+        // get user profile from firebase
+        userProfileViewModel.getUserProfileFromFirebase();
+        // update user profile in navigation drawer
+        updateUserProfile();
+
         return binding.getRoot();
+    }
+
+    /**
+     * Set up update user profile in navigation drawer
+     */
+    private void updateUserProfile() {
+        // observe user profile to update user profile in navigation drawer
+        View headView = binding.navigationView.getHeaderView(0);
+        userProfileViewModel.getUserProfileMutableLiveData().observe(getViewLifecycleOwner(), userProfile -> {
+            ImageView imageView = headView.findViewById(R.id.avatarImage);
+            TextView tvFullName = headView.findViewById(R.id.tvFullName);
+            TextView tvEmail = headView.findViewById(R.id.tvEmail);
+            TextView tvBirthDay = headView.findViewById(R.id.tvBirthday);
+            TextView tvGender = headView.findViewById(R.id.tvGender);
+
+            if (userProfile != null) {
+                imageView.setImageBitmap(helper.convertBase64ToBitmap(userProfile.getAvatarBase64()));
+                tvFullName.setText(userProfile.getFullName());
+                tvEmail.setText(userProfile.getEmail());
+                tvBirthDay.setText(userProfile.getBirthday());
+                tvGender.setText(userProfile.getGender());
+            }
+        });
     }
 
     /**
@@ -158,9 +202,7 @@ public class MainFragment extends Fragment {
         showAllReminderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle show all reminder button click
-                Toast.makeText(getContext(), "Show All Reminder Clicked", Toast.LENGTH_SHORT).show();
-                // call back to main activity to navigate to show all reminder screen
+                // navigate to reminder list fragment
             }
         });
     }
@@ -175,9 +217,9 @@ public class MainFragment extends Fragment {
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle edit profile button click
-                Toast.makeText(getContext(), "Edit Profile Clicked", Toast.LENGTH_SHORT).show();
-                // call back to main activity to navigate to edit profile screen
+                // navigate to edit profile fragment
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.fragment_container);
+                navController.navigate(R.id.action_mainFragment_to_editProfileFragment);
             }
         });
     }
@@ -190,10 +232,19 @@ public class MainFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        requireActivity().getSupportFragmentManager().putFragment(outState, "commonFragment", commonFragment);
-        requireActivity().getSupportFragmentManager().putFragment(outState, "favoriteListFragment", favoriteListFragment);
-        requireActivity().getSupportFragmentManager().putFragment(outState, "settingsFragment", settingsFragment);
-        requireActivity().getSupportFragmentManager().putFragment(outState, "aboutFragment", aboutFragment);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        if (commonFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "commonFragment", commonFragment);
+        }
+        if (favoriteListFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "favoriteListFragment", favoriteListFragment);
+        }
+        if (settingsFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "settingsFragment", settingsFragment);
+        }
+        if (aboutFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "aboutFragment", aboutFragment);
+        }
     }
 
 
@@ -417,11 +468,13 @@ public class MainFragment extends Fragment {
     /**
      * Handle back press event
      */
-    public void showBackButton() {
+    public void setAppbarInDetailFragment() {
         // display back button
         actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_back);
+
         // set action bar drawer toggle to false to disable drawer toggle
         actionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+
         // set back button click listener (for common fragment handle back press)
         binding.toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
 
@@ -432,18 +485,24 @@ public class MainFragment extends Fragment {
             }
         });
 
+        // hide change layout button
+        binding.changeLayoutButton.setVisibility(View.GONE);
+
+        // move to tab 1 (if click in favorite list fragment)
+        if(binding.viewPager.getCurrentItem() != 0) {
+            binding.viewPager.setCurrentItem(0);
+        }
+
         // option menu is disabled
         isOptionsMenuEnabled = false;
         requireActivity().invalidateOptionsMenu(); // call onPrepareOptionsMenu to refresh options menu
 
-        // hide change layout button
-        binding.changeLayoutButton.setVisibility(View.GONE);
     }
 
     /**
      * Show drawer toggle
      */
-    public void showDrawerToggle() {
+    public void setAppbarInListFragment() {
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         setUpToolbar();
 

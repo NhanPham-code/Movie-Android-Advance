@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.example.ojtaadaassignment12.databinding.FragmentMovieListBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
+import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.LoadingStateAdapter;
 import com.example.ojtaadaassignment12.presentation.views.adapters.MovieListAdapter;
@@ -26,6 +27,9 @@ public class FavoriteListFragment extends Fragment {
 
     @Inject
     MovieListViewModel movieListViewModel;
+
+    @Inject
+    MovieDetailViewModel movieDetailViewModel;
 
     public FavoriteListFragment() {
         // Required empty public constructor
@@ -56,6 +60,7 @@ public class FavoriteListFragment extends Fragment {
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         movieListAdapter = new MovieListAdapter();
         movieListAdapter.setMovieListViewModel(movieListViewModel);
+        movieListAdapter.setMovieDetailViewModel(movieDetailViewModel);
         // add load state footer to show loading state in the footer
         binding.recyclerView.setAdapter(movieListAdapter.withLoadStateFooter(new LoadingStateAdapter()));
 

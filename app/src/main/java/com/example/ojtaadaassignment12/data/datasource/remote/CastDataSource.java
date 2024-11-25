@@ -9,12 +9,12 @@ import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Single;
 
-public class CastPagingSource {
+public class CastDataSource {
 
     private final MovieApiService movieApiService;
 
     @Inject
-    public CastPagingSource(MovieApiService movieApiService) {
+    public CastDataSource(MovieApiService movieApiService) {
         this.movieApiService = movieApiService;
     }
 

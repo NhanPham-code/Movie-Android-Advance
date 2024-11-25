@@ -1,4 +1,4 @@
-package com.example.ojtaadaassignment12.presentation.services;
+package com.example.ojtaadaassignment12.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -10,6 +10,14 @@
         android:id="@+id/mainFragment"
         android:name="com.example.ojtaadaassignment12.presentation.views.fragments.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.ojtaadaassignment12.presentation.views.fragments.EditProfileFragment"
+        android:label="EditProfileFragment" />
 
 </navigation>

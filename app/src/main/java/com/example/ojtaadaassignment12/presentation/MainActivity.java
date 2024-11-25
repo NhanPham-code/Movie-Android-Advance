@@ -46,12 +46,17 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Save the state fragment when activity is recreated
-     *
+     * keep state of the NavController to restore it when rotating the screen
+     * NavController will handle state of fragment
      * @param outState: bundle
      */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        if(navController != null) {
+            Bundle navState = navController.saveState();
+            outState.putBundle("nav_state", navState);
+        }
     }
 
 
@@ -63,17 +68,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize NavController
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if(navHostFragment != null) {
+        if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
         }
 
-    }
+        // Restore the state of the NavController if it exists in the bundle
+        if (savedInstanceState != null && navController != null) {
+            // Restore the state fragment when activity is recreated
+            navController.restoreState(savedInstanceState.getBundle("nav_state"));
+        }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.fragment_container);
-        return navController.navigateUp() || super.onSupportNavigateUp();
     }
-
 
 }

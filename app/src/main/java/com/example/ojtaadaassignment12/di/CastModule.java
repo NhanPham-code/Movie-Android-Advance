@@ -1,6 +1,6 @@
 package com.example.ojtaadaassignment12.di;
 
-import com.example.ojtaadaassignment12.data.datasource.remote.CastPagingSource;
+import com.example.ojtaadaassignment12.data.datasource.remote.CastDataSource;
 import com.example.ojtaadaassignment12.data.repository.CastRepositoryImpl;
 import com.example.ojtaadaassignment12.domain.repository.ICastRepository;
 
@@ -14,7 +14,7 @@ public class CastModule {
 
     @Provides
     @Singleton
-    public ICastRepository castRepository(CastPagingSource castPagingSource) {
+    public ICastRepository castRepository(CastDataSource castPagingSource) {
         return new CastRepositoryImpl(castPagingSource);
     }
 }
