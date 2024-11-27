@@ -3,12 +3,14 @@ package com.example.ojtaadaassignment12.di;
 import android.app.Application;
 
 import com.example.ojtaadaassignment12.presentation.MainActivity;
+import com.example.ojtaadaassignment12.presentation.views.fragments.AllReminderFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.CommonFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.EditProfileFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.FavoriteListFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MainFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieDetailFragment;
 import com.example.ojtaadaassignment12.presentation.views.fragments.MovieListFragment;
+import com.example.ojtaadaassignment12.presentation.workers.ReminderWorker;
 
 import javax.inject.Singleton;
 
@@ -17,7 +19,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {MovieListModule.class, NetworkModule.class, DatabaseModule.class,
-                        ContextModule.class, CastModule.class, UserProfileModule.class}) // include NetworkModule to provide MovieApiService
+                        ContextModule.class, CastModule.class, UserProfileModule.class, ReminderModule.class}) // include NetworkModule to provide MovieApiService
 public interface AppComponent {
 
     @Component.Factory
@@ -42,4 +44,10 @@ public interface AppComponent {
 
     // register inject for edit profile fragment
     void injectEditProfileFragment(EditProfileFragment editProfileFragment);
+
+    // register inject for reminder worker
+    void injectReminderWorker(ReminderWorker reminderWorker);
+
+    // register inject for all reminder fragment
+    void injectAllReminderFragment(AllReminderFragment allReminderFragment);
 }

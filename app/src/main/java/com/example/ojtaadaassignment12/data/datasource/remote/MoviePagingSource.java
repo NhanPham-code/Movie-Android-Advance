@@ -6,7 +6,7 @@ import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxPagingSource;
 
 
-import com.example.ojtaadaassignment12.data.datasource.local.FavoriteMovieDao;
+import com.example.ojtaadaassignment12.data.datasource.local.favoritedb.FavoriteMovieDao;
 import com.example.ojtaadaassignment12.data.datasource.remote.api.MovieApiService;
 import com.example.ojtaadaassignment12.data.entities.MovieEntity;
 import com.example.ojtaadaassignment12.data.entities.PageEntity;

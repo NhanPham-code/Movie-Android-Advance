@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.ojtaadaassignment12.domain.models.Cast;
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.usecase.GetCastAndCrewUseCase;
+import com.example.ojtaadaassignment12.domain.usecase.GetMovieDetailByIdUseCase;
 
 import java.util.List;
 
@@ -25,12 +26,15 @@ public class MovieDetailViewModel extends ViewModel {
     private final MutableLiveData<Movie> movieDetailMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Cast>> castListMutableLiveData = new MutableLiveData<>();
 
-    // use case
+
+    // use cases
     private final GetCastAndCrewUseCase getCastAndCrewUseCase;
+    private final GetMovieDetailByIdUseCase getMovieDetailByIdUseCase;
 
     @Inject
-    public MovieDetailViewModel(GetCastAndCrewUseCase getCastAndCrewUseCase) {
+    public MovieDetailViewModel(GetCastAndCrewUseCase getCastAndCrewUseCase, GetMovieDetailByIdUseCase getMovieDetailByIdUseCase) {
         this.getCastAndCrewUseCase = getCastAndCrewUseCase;
+        this.getMovieDetailByIdUseCase = getMovieDetailByIdUseCase;
     }
 
     /**
@@ -54,13 +58,6 @@ public class MovieDetailViewModel extends ViewModel {
         return castListMutableLiveData;
     }
 
-    /**
-     * Set cast live data
-     */
-    public void setCastListMutableLiveData(List<Cast> castList) {
-        this.castListMutableLiveData.setValue(castList);
-    }
-
 
     /**
      * Get cast and crew of a movie from API
@@ -75,6 +72,34 @@ public class MovieDetailViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         castListMutableLiveData::setValue,
+                        throwable -> {
+                            // handle error
+                        }
+                );
+
+        compositeDisposable.add(disposable);
+    }
+
+    /**
+     * Get movie detail from API
+     *
+     * @param movieId: id of the movie
+     */
+    public void getMovieDetailFromApi(long movieId, int isFavoriteOfMovie) {
+        Single<Movie> movieDetail = getMovieDetailByIdUseCase.getMovieDetailById(movieId);
+
+        Disposable disposable = movieDetail
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        // set to movie detail live data, so that fragment can observe this live data
+                        // move to movie detail fragment
+                        movie -> {
+                            // set is favorite for movie detail call from API
+                            movie.setIsFavorite(isFavoriteOfMovie);
+                            // set movie detail to live data to observe in common fragment to move to detail fragment
+                            setMovieDetailMutableLiveData(movie);
+                        },
                         throwable -> {
                             // handle error
                         }

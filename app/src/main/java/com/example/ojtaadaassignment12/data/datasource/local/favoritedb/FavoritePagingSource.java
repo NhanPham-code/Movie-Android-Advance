@@ -1,4 +1,4 @@
-package com.example.ojtaadaassignment12.data.datasource.local;
+package com.example.ojtaadaassignment12.data.datasource.local.favoritedb;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

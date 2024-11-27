@@ -74,23 +74,29 @@ public class CommonFragment extends Fragment {
             navController.restoreState(savedInstanceState);
         }
 
-        // observe movie detail view model to navigate to movie detail screen
+        // observe movie detail view model to navigate to movie detail screen (click movie item or click reminder item)
         movieDetailViewModel.getMovieDetailMutableLiveData().observe(getViewLifecycleOwner(), movie -> {
             if (movie != null && movie.getId() != 0) {
                 navController.navigate(R.id.movieDetailFragment);
             }
         });
 
-        // Notify MainActivity about navigation changes
+        // Notify Main Fragment about navigation changes to update Appbar
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.movieDetailFragment) {
+                // in detail fragment
                 // set appbar in detail fragment
                 mainFragment.setAppbarInDetailFragment();
+
+                mainFragment.setIsDetailFragmentShow(true);
             } else {
-                // detail movie in viewmodel is null for next time click
+                // back to movie list fragment
+                // set detail movie in viewmodel is empty for next time click (avoid navigate to detail fragment when rotate screen)
                 movieDetailViewModel.setMovieDetailMutableLiveData(new Movie());
                 // set appbar in list fragment
                 mainFragment.setAppbarInListFragment();
+
+                mainFragment.setIsDetailFragmentShow(false);
             }
         });
 

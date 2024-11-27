@@ -14,10 +14,17 @@
         <action
             android:id="@+id/action_mainFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_allReminderFragment"
+            app:destination="@id/allReminderFragment" />
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.ojtaadaassignment12.presentation.views.fragments.EditProfileFragment"
         android:label="EditProfileFragment" />
+    <fragment
+        android:id="@+id/allReminderFragment"
+        android:name="com.example.ojtaadaassignment12.presentation.views.fragments.AllReminderFragment"
+        android:label="AllReminderFragment" />
 
 </navigation>

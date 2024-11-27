@@ -1,9 +1,11 @@
 package com.example.ojtaadaassignment12.data.datasource.remote.api;
 
 import com.example.ojtaadaassignment12.data.entities.CastResponseEntity;
+import com.example.ojtaadaassignment12.data.entities.MovieEntity;
 import com.example.ojtaadaassignment12.data.entities.PageEntity;
 
 import io.reactivex.rxjava3.core.Single;
+import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -20,4 +22,7 @@ public interface MovieApiService {
 
     @GET("movie/{movieId}/credits?api_key=e7631ffcb8e766993e5ec0c1f4245f93")
     Single<CastResponseEntity> getMovieCast(@Path("movieId") long movieId);
+
+    @GET("movie/{movieId}?api_key=e7631ffcb8e766993e5ec0c1f4245f93")
+    Single<MovieEntity> getMovieDetail(@Path("movieId") long movieId);
 }

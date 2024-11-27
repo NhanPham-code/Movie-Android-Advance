@@ -12,6 +12,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
@@ -29,7 +32,9 @@ import com.example.ojtaadaassignment12.databinding.FragmentMainBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
+import com.example.ojtaadaassignment12.presentation.viewmodels.ReminderViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.UserProfileViewModel;
+import com.example.ojtaadaassignment12.presentation.views.adapters.NavReminderAdapter;
 import com.example.ojtaadaassignment12.presentation.views.adapters.ViewPagerAdapter;
 import com.example.ojtaadaassignment12.util.Base64Helper;
 import com.google.android.material.badge.BadgeDrawable;
@@ -68,15 +73,20 @@ public class MainFragment extends Fragment {
 
     private Base64Helper helper;
 
+    private boolean isDetailFragmentShow = false;
+
     // View models
     @Inject
-    MovieListViewModel movieListViewModel;
+    MovieListViewModel movieListViewModel; // use to get favorite movies count to update favorite tab tag
 
     @Inject
-    MovieDetailViewModel movieDetailViewModel;
+    MovieDetailViewModel movieDetailViewModel; // use to update toolbar title when navigate to movie detail screen
 
     @Inject
-    UserProfileViewModel userProfileViewModel;
+    UserProfileViewModel userProfileViewModel; // use to get user profile from firebase update user profile in navigation drawer
+
+    @Inject
+    ReminderViewModel reminderViewModel; // use to get and update reminder list in navigation drawer
 
     public MainFragment() {
         // Required empty public constructor
@@ -97,6 +107,12 @@ public class MainFragment extends Fragment {
         ((MyApplication) requireActivity().getApplication()).appComponent.injectMainFragment(this);
 
         helper = new Base64Helper();
+
+        // get user profile from firebase
+        userProfileViewModel.getUserProfileFromFirebase();
+
+        // get reminder list from database
+        reminderViewModel.getAllReminders();
     }
 
     @Override
@@ -162,12 +178,45 @@ public class MainFragment extends Fragment {
         setClickShowAllReminderButton();
 
 
-        // get user profile from firebase
-        userProfileViewModel.getUserProfileFromFirebase();
         // update user profile in navigation drawer
         updateUserProfile();
 
+
+        // update reminder list in navigation drawer
+        updateReminderList();
+
         return binding.getRoot();
+    }
+
+
+    /**
+     * Update reminder list
+     */
+    public void updateReminderList() {
+        // update reminder list in navigation drawer
+        reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
+            View headerOfNavigationView = binding.navigationView.getHeaderView(0);
+            RecyclerView rvReminder = headerOfNavigationView.findViewById(R.id.rvReminder);
+            NavReminderAdapter reminderAdapter = new NavReminderAdapter(reminders);
+            rvReminder.setLayoutManager(new LinearLayoutManager(requireContext()));
+            rvReminder.setAdapter(reminderAdapter);
+        });
+    }
+
+    /**
+     * Set up listener for show all reminder button
+     */
+    private void setClickShowAllReminderButton() {
+        View headerView = binding.navigationView.getHeaderView(0);
+        AppCompatButton showAllReminderButton = headerView.findViewById(R.id.btnShowAll);
+        showAllReminderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // navigate to reminder list fragment
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.fragment_container);
+                navController.navigate(R.id.action_mainFragment_to_allReminderFragment);
+            }
+        });
     }
 
     /**
@@ -192,21 +241,6 @@ public class MainFragment extends Fragment {
             }
         });
     }
-
-    /**
-     * Set up listener for show all reminder button
-     */
-    private void setClickShowAllReminderButton() {
-        View headerView = binding.navigationView.getHeaderView(0);
-        AppCompatButton showAllReminderButton = headerView.findViewById(R.id.btnShowAll);
-        showAllReminderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // navigate to reminder list fragment
-            }
-        });
-    }
-
 
     /**
      * Set up listener for edit profile button
@@ -343,11 +377,17 @@ public class MainFragment extends Fragment {
                 super.onPageSelected(position);
                 switch (position) {
                     case 0: // Movie List
-                        binding.toolbar.setTitle("Movies");
-                        binding.changeLayoutButton.setVisibility(View.VISIBLE);
-                        binding.searchEditText.setVisibility(View.GONE);
-                        binding.searchButton.setVisibility(View.GONE);
-                        isOptionsMenuEnabled = true;
+                        if(isDetailFragmentShow == false) {
+                            binding.toolbar.setTitle("Movies");
+                            binding.changeLayoutButton.setVisibility(View.VISIBLE);
+                            binding.searchEditText.setVisibility(View.GONE);
+                            binding.searchButton.setVisibility(View.GONE);
+                            isOptionsMenuEnabled = true;
+                        } else {
+                            setAppbarInDetailFragment();
+                            binding.searchEditText.setVisibility(View.GONE);
+                            binding.searchButton.setVisibility(View.GONE);
+                        }
                         break;
                     case 1: // Favorite List
                         binding.toolbar.setTitle("");
@@ -355,6 +395,8 @@ public class MainFragment extends Fragment {
                         binding.searchEditText.setVisibility(View.VISIBLE);
                         binding.searchEditText.setText("Favorite");
                         binding.searchButton.setVisibility(View.VISIBLE);
+                        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+                        setUpToolbar();
                         isOptionsMenuEnabled = false;
                         break;
                     case 2: // Setting
@@ -376,7 +418,6 @@ public class MainFragment extends Fragment {
             }
         });
     }
-
 
     /**
      * Set up button change layout of movie list (list or grid layout)
@@ -418,7 +459,7 @@ public class MainFragment extends Fragment {
         // set view pager with fragments
         viewPagerAdapter = new ViewPagerAdapter(requireActivity(), fragmentList);
         binding.viewPager.setAdapter(viewPagerAdapter);
-        binding.viewPager.setOffscreenPageLimit(4); // create two 4 tabs to avoid null
+        binding.viewPager.setOffscreenPageLimit(2); // create two 2 tabs to avoid null
 
         // set tab layout with view pager
         createTabName();
@@ -465,6 +506,10 @@ public class MainFragment extends Fragment {
         actionBarDrawerToggle.syncState();
     }
 
+    public void setIsDetailFragmentShow(boolean isDetailFragmentShow) {
+        this.isDetailFragmentShow = isDetailFragmentShow;
+    }
+
     /**
      * Handle back press event
      */
@@ -479,19 +524,19 @@ public class MainFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
 
         // observe detail movie to update toolbar title by movie title when navigate to movie detail screen
-        movieDetailViewModel.getMovieDetailMutableLiveData().observe(this, movie -> {
+        movieDetailViewModel.getMovieDetailMutableLiveData().observe(requireActivity(), movie -> {
             if (movie != null) {
                 binding.toolbar.setTitle(movie.getTitle());
             }
         });
 
-        // hide change layout button
-        binding.changeLayoutButton.setVisibility(View.GONE);
-
         // move to tab 1 (if click in favorite list fragment)
-        if(binding.viewPager.getCurrentItem() != 0) {
+        if (binding.viewPager.getCurrentItem() != 0) {
             binding.viewPager.setCurrentItem(0);
         }
+
+        // hide change layout button
+        binding.changeLayoutButton.setVisibility(View.GONE);
 
         // option menu is disabled
         isOptionsMenuEnabled = false;
@@ -503,6 +548,7 @@ public class MainFragment extends Fragment {
      * Show drawer toggle
      */
     public void setAppbarInListFragment() {
+        // set back button to hamburger icon
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         setUpToolbar();
 

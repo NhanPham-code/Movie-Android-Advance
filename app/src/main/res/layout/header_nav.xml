@@ -130,6 +130,7 @@
         android:layout_marginTop="5dp"
         android:background="@drawable/movie_item_background"
         android:elevation="16dp"
+        tools:listitem="@layout/item_nav_reminder"
         app:layout_constraintBottom_toTopOf="@+id/btnShowAll"
         app:layout_constraintTop_toBottomOf="@+id/tvReminder" />
 

@@ -27,4 +27,7 @@ public interface IMovieRepository {
     // get favorite movies count to set the favorite tag
     Single<Integer> getFavoriteMoviesCount();
 
+    // get movie detail from API
+    Single<Movie> getMovieDetailById(long movieId);
+
 }

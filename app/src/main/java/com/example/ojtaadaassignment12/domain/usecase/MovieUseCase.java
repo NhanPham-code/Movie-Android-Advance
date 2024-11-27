@@ -8,13 +8,14 @@ import com.example.ojtaadaassignment12.domain.repository.IMovieRepository;
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
-public class GetMovieUseCase {
+public class MovieUseCase {
 
     IMovieRepository iMovieRepository;
 
     @Inject
-    public GetMovieUseCase(IMovieRepository movieRepository) {
+    public MovieUseCase(IMovieRepository movieRepository) {
         this.iMovieRepository = movieRepository;
     }
 
@@ -23,7 +24,7 @@ public class GetMovieUseCase {
      * @param category: the category of the movies to fetch
      * @return a Flowable of PagingData<Movie>
      */
-    public Flowable<PagingData<Movie>> execute(String category, String rating, String releaseYear, String sortBy) {
+    public Flowable<PagingData<Movie>> getMovieListFromApi(String category, String rating, String releaseYear, String sortBy) {
         return iMovieRepository.getMovies(category, rating, releaseYear, sortBy);
     }
 }

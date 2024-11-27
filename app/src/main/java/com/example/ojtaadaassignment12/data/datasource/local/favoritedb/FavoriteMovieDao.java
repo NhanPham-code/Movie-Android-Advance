@@ -1,4 +1,4 @@
-package com.example.ojtaadaassignment12.data.datasource.local;
+package com.example.ojtaadaassignment12.data.datasource.local.favoritedb;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

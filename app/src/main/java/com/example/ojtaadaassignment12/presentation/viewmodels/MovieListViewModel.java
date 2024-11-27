@@ -11,7 +11,7 @@ import androidx.paging.rxjava3.PagingRx;
 
 import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.domain.usecase.FavoriteUseCase;
-import com.example.ojtaadaassignment12.domain.usecase.GetMovieUseCase;
+import com.example.ojtaadaassignment12.domain.usecase.MovieUseCase;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,17 +45,17 @@ public class MovieListViewModel extends ViewModel {
     private final MutableLiveData<String> category = new MutableLiveData<>();
 
     // use cases
-    GetMovieUseCase getMovieUseCase;
+    MovieUseCase movieUseCase;
     FavoriteUseCase favoriteUseCase;
 
 
     @Inject
-    public MovieListViewModel(GetMovieUseCase getMovieUseCase, FavoriteUseCase favoriteUseCase) {
+    public MovieListViewModel(MovieUseCase getMovieUseCase, FavoriteUseCase favoriteUseCase) {
         // old code (don't need to use)
         //this.movieRepository = new MovieRepository()
 
         // use dagger to inject the movie use case
-        this.getMovieUseCase = getMovieUseCase;
+        this.movieUseCase = getMovieUseCase;
 
         this.favoriteUseCase = favoriteUseCase;
     }
@@ -121,6 +121,10 @@ public class MovieListViewModel extends ViewModel {
         return updateFavoriteMovie;
     }
 
+    public void setUpdateFavoriteMovie(Movie movie) {
+        updateFavoriteMovie.setValue(movie);
+    }
+
     /**
      * Get the favorite movies count
      *
@@ -136,7 +140,7 @@ public class MovieListViewModel extends ViewModel {
      */
     public void getMovieListFromApi(String category, String rating, String releaseYear, String sortBy) {
         // Fetch movies from the MovieService
-        Flowable<PagingData<Movie>> movies = getMovieUseCase.execute(category, rating, releaseYear, sortBy);
+        Flowable<PagingData<Movie>> movies = movieUseCase.getMovieListFromApi(category, rating, releaseYear, sortBy);
 
         // Cache the movies to avoid fetching them again when the activity is recreated
         cachedMovies = PagingRx.cachedIn(movies, ViewModelKt.getViewModelScope(this));
@@ -221,7 +225,7 @@ public class MovieListViewModel extends ViewModel {
                 );
         compositeDisposable.add(disposable);
 
-        //update favorite movie list after insert favorite movie to observe in movie list fragment
+        //update favorite movie list after insert favorite movie to observe in movie list fragment to update UI
         updateFavoriteMovie.setValue(movie);
     }
 
@@ -247,7 +251,7 @@ public class MovieListViewModel extends ViewModel {
                 );
         compositeDisposable.add(disposable);
 
-        //update favorite movie list after delete favorite movie to observe in movie list fragment
+        //update favorite movie list after delete favorite movie to observe in movie list fragment to update UI
         updateFavoriteMovie.setValue(movie);
     }
 

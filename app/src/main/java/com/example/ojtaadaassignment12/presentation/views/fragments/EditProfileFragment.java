@@ -142,6 +142,7 @@ public class EditProfileFragment extends Fragment {
             // save user profile to firebase
             UserProfile newUserProfile = new UserProfile(fullName, email, birthday, gender, avatarBase64);
             userProfileViewModel.setUserProfileToFirebase(newUserProfile);
+            userProfileViewModel.setUserProfile(newUserProfile);
 
             // navigate back to profile fragment
             navController.popBackStack();

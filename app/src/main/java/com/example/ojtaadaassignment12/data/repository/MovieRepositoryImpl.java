@@ -6,9 +6,10 @@ import androidx.paging.PagingData;
 import androidx.paging.PagingDataTransforms;
 import androidx.paging.rxjava3.PagingRx;
 
-import com.example.ojtaadaassignment12.data.datasource.local.FavoriteMovieDao;
-import com.example.ojtaadaassignment12.data.datasource.local.FavoritePagingSource;
+import com.example.ojtaadaassignment12.data.datasource.local.favoritedb.FavoriteMovieDao;
+import com.example.ojtaadaassignment12.data.datasource.local.favoritedb.FavoritePagingSource;
 import com.example.ojtaadaassignment12.data.datasource.remote.MoviePagingSource;
+import com.example.ojtaadaassignment12.data.datasource.remote.api.MovieApiService;
 import com.example.ojtaadaassignment12.data.entities.MovieEntity;
 import com.example.ojtaadaassignment12.data.mapper.MovieMapper;
 import com.example.ojtaadaassignment12.domain.models.Movie;
@@ -32,8 +33,11 @@ public class MovieRepositoryImpl implements IMovieRepository {
     // Use to get favorite movie list from local database
     FavoriteMovieDao favoriteMovieDao;
 
+    // use to get movie detail from API
+    MovieApiService movieApiService;
+
     @Inject
-    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource, FavoriteMovieDao favoriteMovieDao) {
+    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource, FavoriteMovieDao favoriteMovieDao, MovieApiService movieApiService) {
         // use dagger to inject the network page source
         this.moviePagingSource = moviePagingSource;
 
@@ -42,6 +46,8 @@ public class MovieRepositoryImpl implements IMovieRepository {
 
         // use dagger to inject the favorite movie dao
         this.favoriteMovieDao = favoriteMovieDao;
+
+        this.movieApiService = movieApiService;
     }
 
     /**
@@ -152,6 +158,17 @@ public class MovieRepositoryImpl implements IMovieRepository {
     @Override
     public Single<Integer> getFavoriteMoviesCount() {
         return favoriteMovieDao.getFavoriteMoviesCount();
+    }
+
+    /**
+     * Get movie detail from API
+     * @param movieId: movie id
+     * @return Single<Movie> movie detail
+     */
+    @Override
+    public Single<Movie> getMovieDetailById(long movieId) {
+        return movieApiService.getMovieDetail(movieId)
+                .map(MovieMapper::toDomain);
     }
 
 }
