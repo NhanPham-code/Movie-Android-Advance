@@ -1,6 +1,7 @@
 package com.example.ojtaadaassignment12.presentation;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
@@ -45,16 +47,20 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     NavController navController;
 
+    @Inject
+    MovieDetailViewModel movieDetailViewModel;
+
     /**
      * Save the state fragment when activity is recreated
      * keep state of the NavController to restore it when rotating the screen
      * NavController will handle state of fragment
+     *
      * @param outState: bundle
      */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(navController != null) {
+        if (navController != null) {
             Bundle navState = navController.saveState();
             outState.putBundle("nav_state", navState);
         }
@@ -83,6 +89,28 @@ public class MainActivity extends AppCompatActivity {
             navController.restoreState(savedInstanceState.getBundle("nav_state"));
         }
 
+        // inject
+        ((MyApplication) getApplication()).appComponent.injectMainActivity(this);
     }
 
+    /**
+     * Get intent from notification
+     * Get movie detail from API and set to MovieDetailViewModel
+     * To navigate to MovieDetailFragment when click on notification
+     * @param savedInstanceState: bundle
+     */
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // get intent from notification
+        // get movie detail from API and set to MovieDetailViewModel
+        Intent intent = getIntent();
+        if (intent != null) {
+            long movieId = intent.getLongExtra("movieId", -1);
+            int isFavoriteOfMovie = intent.getIntExtra("isFavoriteOfMovie", -1);
+            if (movieId != -1) {
+                movieDetailViewModel.getMovieDetailFromApi(movieId, isFavoriteOfMovie);
+            }
+        }
+    }
 }

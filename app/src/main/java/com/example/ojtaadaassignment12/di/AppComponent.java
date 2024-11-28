@@ -50,4 +50,7 @@ public interface AppComponent {
 
     // register inject for all reminder fragment
     void injectAllReminderFragment(AllReminderFragment allReminderFragment);
+
+    // register inject for main activity
+    void injectMainActivity(MainActivity mainActivity);
 }

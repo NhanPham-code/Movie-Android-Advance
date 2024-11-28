@@ -72,6 +72,8 @@ public class ReminderWorker extends Worker {
 
         // Intent mở MainActivity khi nhấn vào thông báo
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("movieId", reminder.getMovieId()); // set movieId to open movie detail when click notification
+        intent.putExtra("isFavoriteOfMovie", reminder.getIsFavoriteOfMovie()); // set isFavoriteOfMovie to open movie detail when click notification
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)

@@ -95,7 +95,7 @@ public class MovieDetailViewModel extends ViewModel {
                         // set to movie detail live data, so that fragment can observe this live data
                         // move to movie detail fragment
                         movie -> {
-                            // set is favorite for movie detail call from API
+                            // set is favorite for movie detail call from API (sync favorite status)
                             movie.setIsFavorite(isFavoriteOfMovie);
                             // set movie detail to live data to observe in common fragment to move to detail fragment
                             setMovieDetailMutableLiveData(movie);
