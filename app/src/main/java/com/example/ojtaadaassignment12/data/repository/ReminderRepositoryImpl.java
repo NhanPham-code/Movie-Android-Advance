@@ -41,6 +41,12 @@ public class ReminderRepositoryImpl implements IReminderRepository {
     }
 
     @Override
+    public void updateReminder(Reminder reminder) {
+        ReminderEntity reminderEntity = ReminderMapper.toEntity(reminder);
+        reminderDataSource.updateReminder(reminderEntity);
+    }
+
+    @Override
     public Flowable<List<Reminder>> getAllReminders() {
         return reminderDataSource.getAllReminders()
                 .map(reminderEntities -> reminderEntities.stream()

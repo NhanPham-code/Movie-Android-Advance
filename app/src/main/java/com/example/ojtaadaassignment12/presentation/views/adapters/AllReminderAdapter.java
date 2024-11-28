@@ -88,8 +88,6 @@ public class AllReminderAdapter extends RecyclerView.Adapter<AllReminderAdapter.
                                 // remove reminder from database
                                 reminderViewModel.removeReminderFromDB(reminder);
 
-                                // remove reminder from reminder list in ReminderViewModel to update UI
-                                //reminderViewModel.removeReminderFromList(reminder);
                             })
                             .setNegativeButton("Cancel", null)
                             .show();

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.databinding.FragmentMainBinding;
 import com.example.ojtaadaassignment12.di.MyApplication;
+import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.ReminderViewModel;
@@ -60,6 +62,9 @@ public class MainFragment extends Fragment {
 
     // drawer layout
     ActionBarDrawerToggle actionBarDrawerToggle;
+
+    // header view in navigation drawer
+    View headerView;
 
     // fragments
     List<Fragment> fragmentList;
@@ -100,6 +105,29 @@ public class MainFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Save the state fragment when activity is recreated
+     *
+     * @param outState: bundle
+     */
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        if (commonFragment != null && commonFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "commonFragment", commonFragment);
+        }
+        if (favoriteListFragment != null && favoriteListFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "favoriteListFragment", favoriteListFragment);
+        }
+        if (settingsFragment != null && settingsFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "settingsFragment", settingsFragment);
+        }
+        if (aboutFragment != null && aboutFragment.isAdded()) {
+            fragmentManager.putFragment(outState, "aboutFragment", aboutFragment);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,7 +156,7 @@ public class MainFragment extends Fragment {
         if (savedInstanceState != null) {
             // restore fragments when activity is recreated
             commonFragment = (CommonFragment) requireActivity().getSupportFragmentManager().getFragment(savedInstanceState, "commonFragment");
-            if(commonFragment != null) {
+            if (commonFragment != null) {
                 commonFragment.setMainFragment(this);
             }
 
@@ -171,16 +199,16 @@ public class MainFragment extends Fragment {
         // set up search button
         setUpSearchButton();
 
+        headerView = binding.navigationView.getHeaderView(0);
+
         // edit profile click
         setClickEditProfileButton();
 
         // show all reminder click
         setClickShowAllReminderButton();
 
-
         // update user profile in navigation drawer
         updateUserProfile();
-
 
         // update reminder list in navigation drawer
         updateReminderList();
@@ -195,8 +223,7 @@ public class MainFragment extends Fragment {
     public void updateReminderList() {
         // update reminder list in navigation drawer
         reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
-            View headerOfNavigationView = binding.navigationView.getHeaderView(0);
-            RecyclerView rvReminder = headerOfNavigationView.findViewById(R.id.rvReminder);
+            RecyclerView rvReminder = headerView.findViewById(R.id.rvReminder);
             NavReminderAdapter reminderAdapter = new NavReminderAdapter(reminders);
             rvReminder.setLayoutManager(new LinearLayoutManager(requireContext()));
             rvReminder.setAdapter(reminderAdapter);
@@ -207,7 +234,6 @@ public class MainFragment extends Fragment {
      * Set up listener for show all reminder button
      */
     private void setClickShowAllReminderButton() {
-        View headerView = binding.navigationView.getHeaderView(0);
         AppCompatButton showAllReminderButton = headerView.findViewById(R.id.btnShowAll);
         showAllReminderButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,13 +250,12 @@ public class MainFragment extends Fragment {
      */
     private void updateUserProfile() {
         // observe user profile to update user profile in navigation drawer
-        View headView = binding.navigationView.getHeaderView(0);
         userProfileViewModel.getUserProfileMutableLiveData().observe(getViewLifecycleOwner(), userProfile -> {
-            ImageView imageView = headView.findViewById(R.id.avatarImage);
-            TextView tvFullName = headView.findViewById(R.id.tvFullName);
-            TextView tvEmail = headView.findViewById(R.id.tvEmail);
-            TextView tvBirthDay = headView.findViewById(R.id.tvBirthday);
-            TextView tvGender = headView.findViewById(R.id.tvGender);
+            ImageView imageView = headerView.findViewById(R.id.avatarImage);
+            TextView tvFullName = headerView.findViewById(R.id.tvFullName);
+            TextView tvEmail = headerView.findViewById(R.id.tvEmail);
+            TextView tvBirthDay = headerView.findViewById(R.id.tvBirthday);
+            TextView tvGender = headerView.findViewById(R.id.tvGender);
 
             if (userProfile != null) {
                 imageView.setImageBitmap(helper.convertBase64ToBitmap(userProfile.getAvatarBase64()));
@@ -246,7 +271,6 @@ public class MainFragment extends Fragment {
      * Set up listener for edit profile button
      */
     private void setClickEditProfileButton() {
-        View headerView = binding.navigationView.getHeaderView(0);
         AppCompatButton editProfileButton = headerView.findViewById(R.id.btnEdit);
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -256,29 +280,6 @@ public class MainFragment extends Fragment {
                 navController.navigate(R.id.action_mainFragment_to_editProfileFragment);
             }
         });
-    }
-
-    /**
-     * Save the state fragment when activity is recreated
-     *
-     * @param outState: bundle
-     */
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        if (commonFragment.isAdded()) {
-            fragmentManager.putFragment(outState, "commonFragment", commonFragment);
-        }
-        if (favoriteListFragment.isAdded()) {
-            fragmentManager.putFragment(outState, "favoriteListFragment", favoriteListFragment);
-        }
-        if (settingsFragment.isAdded()) {
-            fragmentManager.putFragment(outState, "settingsFragment", settingsFragment);
-        }
-        if (aboutFragment.isAdded()) {
-            fragmentManager.putFragment(outState, "aboutFragment", aboutFragment);
-        }
     }
 
 
@@ -377,7 +378,7 @@ public class MainFragment extends Fragment {
                 super.onPageSelected(position);
                 switch (position) {
                     case 0: // Movie List
-                        if(isDetailFragmentShow == false) {
+                        if (isDetailFragmentShow == false) {
                             binding.toolbar.setTitle("Movies");
                             binding.changeLayoutButton.setVisibility(View.VISIBLE);
                             binding.searchEditText.setVisibility(View.GONE);
@@ -459,7 +460,7 @@ public class MainFragment extends Fragment {
         // set view pager with fragments
         viewPagerAdapter = new ViewPagerAdapter(requireActivity(), fragmentList);
         binding.viewPager.setAdapter(viewPagerAdapter);
-        binding.viewPager.setOffscreenPageLimit(2); // create two 2 tabs to avoid null
+        binding.viewPager.setOffscreenPageLimit(3); // create two 3 tabs to avoid null
 
         // set tab layout with view pager
         createTabName();

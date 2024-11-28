@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
@@ -48,7 +49,7 @@ public class MovieDetailFragment extends Fragment {
 
     FragmentMovieDetailBinding binding;
 
-    Picasso picasso;
+    private Picasso picasso;
 
     @Inject
     MovieDetailViewModel movieDetailViewModel; // display movie detail information
@@ -130,34 +131,41 @@ public class MovieDetailFragment extends Fragment {
                 }
             });
 
-            // movie is set reminder or not
+            // check movie is set reminder or not
+            // observe reminder list to update UI when reminder is added or deleted
             reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
 
-                // check movie is set in reminder or not
                 Reminder reminderCheck = null;
+                // check movie is set in reminder or not
                 for (Reminder reminder : reminders) {
                     if (reminder.getMovieId() == movie.getId()) { // movie have set reminder
                         reminderCheck = reminder;
                         break;
+                    } else {
+                        reminderCheck = null;
                     }
                 }
 
-                if(reminderCheck != null) { //movie is set reminder
+                if (reminderCheck == null) {
+                    // binding.btnReminder.setVisibility(View.VISIBLE);
+                    // show reminder button and disable reminder information
+                    binding.btnReminder.setText("Reminder");
+                    binding.reminderInfo.setVisibility(View.GONE);
+                } else {
+                    // binding.btnReminder.setVisibility(View.INVISIBLE);
                     // show reminder information and disable reminder button
-                    binding.btnReminder.setVisibility(View.INVISIBLE);
+                    binding.btnReminder.setText("Update Reminder");
                     binding.reminderInfo.setVisibility(View.VISIBLE);
                     binding.reminderInfo.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                                                        .format(new Date(reminderCheck.getTime())));
-                } else {
-                    // show reminder button and disable reminder information
-                    binding.btnReminder.setVisibility(View.VISIBLE);
-                    binding.reminderInfo.setVisibility(View.GONE);
+                            .format(new Date(reminderCheck.getTime())));
                 }
-            });
 
-            // set reminder button click listener
-            binding.btnReminder.setOnClickListener(v -> {
-                showDateTimePicker(movie);
+                // set reminder button click listener
+                Reminder finalReminderCheck = reminderCheck;
+                binding.btnReminder.setOnClickListener(v -> {
+                    showDateTimePicker(movie, finalReminderCheck);
+                });
+
             });
         }
 
@@ -168,7 +176,7 @@ public class MovieDetailFragment extends Fragment {
     /**
      * Show date time picker
      */
-    private void showDateTimePicker(Movie movie) {
+    private void showDateTimePicker(Movie movie, Reminder reminderCheck) {
 
         // check permission to show notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -179,7 +187,7 @@ public class MovieDetailFragment extends Fragment {
         Calendar calendar = Calendar.getInstance();
 
         // Date Picker
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), android.R.style.Theme_Holo_Light_DialogWhenLarge_NoActionBar,
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireActivity(), android.R.style.Theme_Holo_Light_DialogWhenLarge_NoActionBar,
                 (view, year, month, dayOfMonth) -> {
                     calendar.setTimeZone(TimeZone.getDefault());
                     calendar.set(Calendar.YEAR, year);
@@ -203,23 +211,31 @@ public class MovieDetailFragment extends Fragment {
                                     return;
                                 }
 
-                                Reminder newReminder = new Reminder();
-                                newReminder.setTime(selectedTimeInMillis);
-                                newReminder.setMovieId(movie.getId());
-                                newReminder.setPosterPathMovie(movie.getPosterPath());
-                                newReminder.setTitleMovie(movie.getTitle());
-                                newReminder.setReleaseDateMovie(movie.getReleaseDate());
-                                newReminder.setVoteAverageMovie(movie.getVoteAverage());
-                                newReminder.setIsFavoriteOfMovie(movie.getIsFavorite()); // use to sync favorite status of movie with reminder
+                                if (reminderCheck == null) {
+                                    Reminder newReminder = new Reminder();
+                                    newReminder.setTime(selectedTimeInMillis); // set reminder time
+                                    newReminder.setMovieId(movie.getId());
+                                    newReminder.setPosterPathMovie(movie.getPosterPath());
+                                    newReminder.setTitleMovie(movie.getTitle());
+                                    newReminder.setReleaseDateMovie(movie.getReleaseDate());
+                                    newReminder.setVoteAverageMovie(movie.getVoteAverage());
+                                    newReminder.setIsFavoriteOfMovie(movie.getIsFavorite()); // use to sync favorite status of movie with reminder
 
-                                // add reminder to database
-                                reminderViewModel.addReminderToDB(newReminder);
+                                    // add reminder to database
+                                    reminderViewModel.addReminderToDB(newReminder);
+                                } else {
+                                    // cancel worker with the specific tag (before update reminder time)
+                                    cancelWork(movie.getId());
 
-                                // add reminder to reminder list of view model to update UI
-                                //reminderViewModel.addReminderToList(newReminder);
+                                    // reset new reminder time
+                                    reminderCheck.setTime(selectedTimeInMillis);
 
-                                // set up a work to show a notification at the specified time
-                                scheduleWork(selectedTimeInMillis);
+                                    // update reminder to DB
+                                    reminderViewModel.updateReminderToDB(reminderCheck);
+                                }
+
+                                // set up a work to show a notification at the specified time and add tag to work
+                                scheduleWork(selectedTimeInMillis, movie.getId());
 
                                 Toast.makeText(getActivity(), "Reminder set successfully", Toast.LENGTH_SHORT).show();
 
@@ -231,7 +247,8 @@ public class MovieDetailFragment extends Fragment {
 
     /**
      * Function to check and request permission.
-     * @param permission: permission to check
+     *
+     * @param permission:  permission to check
      * @param requestCode: request code
      */
     public void checkPermission(String permission, int requestCode) {
@@ -242,15 +259,28 @@ public class MovieDetailFragment extends Fragment {
 
     /**
      * Schedule a work to show a notification at the specified time
+     *
      * @param reminderTime: the time to show the notification
      */
-    private void scheduleWork(long reminderTime) {
+    private void scheduleWork(long reminderTime, long movieId) {
         long delay = reminderTime - System.currentTimeMillis();
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(ReminderWorker.class)
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .addTag("Reminder_" + movieId) // Add tag to work
                 .build();
 
         WorkManager.getInstance(requireContext()).enqueue(workRequest);
     }
+
+    /**
+     * Cancel work with the specific tag
+     *
+     * @param movieId: the id of the movie
+     */
+    private void cancelWork(long movieId) {
+        WorkManager.getInstance(requireContext())
+                .cancelAllWorkByTag("Reminder_" + movieId); // Cancel work with the specific tag
+    }
+
 }

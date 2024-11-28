@@ -12,9 +12,12 @@ public interface IReminderRepository {
 
     void removeReminder(Reminder reminder);
 
+    void updateReminder(Reminder reminder);
+
     Flowable<List<Reminder>> getAllReminders();
 
     // worker use to get reminders by time range from the database
     // worker is background thread so don't need to use rxjava
     List<Reminder> getRemindersByTimeRange(long startTime, long endTime);
+
 }

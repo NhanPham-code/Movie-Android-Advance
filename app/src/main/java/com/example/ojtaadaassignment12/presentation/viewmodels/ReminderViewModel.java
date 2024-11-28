@@ -72,6 +72,23 @@ public class ReminderViewModel extends ViewModel {
     }
 
     /**
+     * Update a reminder
+     * @param reminder: reminder to be updated
+     */
+    public void updateReminderToDB(Reminder reminder) {
+        Disposable disposable = Completable.fromCallable(() -> {
+                    reminderUseCase.updateReminder(reminder);
+                    return true;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+
+        compositeDisposable.add(disposable);
+    }
+
+
+    /**
      * Get all reminders
      */
     public void getAllReminders() {
@@ -81,7 +98,6 @@ public class ReminderViewModel extends ViewModel {
         Disposable disposable = reminderSingle
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .distinctUntilChanged()
                 .subscribe(
                         reminders -> reminderList.setValue(reminders),
                         throwable -> reminderList.setValue(null)
@@ -90,8 +106,9 @@ public class ReminderViewModel extends ViewModel {
         compositeDisposable.add(disposable);
     }
 
+
     /**
-     * Get reminders by time range
+     * Get reminders by time range (use in worker)
      *
      * @param startTime: start time of the range
      * @param endTime:   end time of the range
@@ -101,21 +118,7 @@ public class ReminderViewModel extends ViewModel {
     }
 
 
-    public void addReminderToList(Reminder newReminder) {
-        if(reminderList.getValue() != null) {
-            List<Reminder> reminders = new ArrayList<>(reminderList.getValue());
-            reminders.add(newReminder);
-            reminderList.setValue(reminders);
-        }
-    }
 
-    public void removeReminderFromList(Reminder reminder) {
-        if(reminderList.getValue() != null) {
-            List<Reminder> reminders = new ArrayList<>(reminderList.getValue());
-            reminders.remove(reminder);
-            reminderList.setValue(reminders);
-        }
-    }
 
     @Override
     protected void onCleared() {

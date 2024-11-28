@@ -5,4 +5,5 @@
     <color name="red">#eb4034</color>
     <color name="gray">#999494</color>
     <color name="blue">#0066FF</color>
+    <color name="splash_background">#008DC3</color>
 </resources>

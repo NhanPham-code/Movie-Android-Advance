@@ -20,6 +20,9 @@ public interface ReminderDao {
     @Delete
     void deleteReminder(ReminderEntity reminder);
 
+    @Query("UPDATE reminder_table SET time = :time WHERE id = :id")
+    void updateReminderTime(long id, long time);
+
     @Query("SELECT * FROM reminder_table")
     Flowable<List<ReminderEntity>> getAllReminders();
 

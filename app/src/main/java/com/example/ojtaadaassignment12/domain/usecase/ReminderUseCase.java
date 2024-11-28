@@ -27,6 +27,10 @@ public class ReminderUseCase {
         iReminderRepository.removeReminder(reminder);
     }
 
+    public void updateReminder(Reminder reminder) {
+        iReminderRepository.updateReminder(reminder);
+    }
+
     public Flowable<List<Reminder>> getAllReminders() {
         return iReminderRepository.getAllReminders();
     }
@@ -34,4 +38,5 @@ public class ReminderUseCase {
     public List<Reminder> getRemindersByTimeRange(long startTime, long endTime) {
         return iReminderRepository.getRemindersByTimeRange(startTime, endTime);
     }
+
 }

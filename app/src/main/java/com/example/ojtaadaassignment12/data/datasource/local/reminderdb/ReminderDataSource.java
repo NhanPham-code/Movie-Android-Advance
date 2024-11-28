@@ -27,6 +27,10 @@ public class ReminderDataSource {
         reminderDao.deleteReminder(reminder);
     }
 
+    public void updateReminder(ReminderEntity reminderEntity) {
+        reminderDao.updateReminderTime(reminderEntity.getId(), reminderEntity.getTime());
+    }
+
     public Flowable<List<ReminderEntity>> getAllReminders() {
         return reminderDao.getAllReminders();
     }

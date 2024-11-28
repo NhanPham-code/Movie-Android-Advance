@@ -139,9 +139,10 @@ public class EditProfileFragment extends Fragment {
                 gender = "Female";
             }
 
-            // save user profile to firebase
             UserProfile newUserProfile = new UserProfile(fullName, email, birthday, gender, avatarBase64);
+            // save user profile to firebase
             userProfileViewModel.setUserProfileToFirebase(newUserProfile);
+            // set user profile to view model to observe can update UI
             userProfileViewModel.setUserProfile(newUserProfile);
 
             // navigate back to profile fragment
