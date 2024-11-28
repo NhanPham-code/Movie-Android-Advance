@@ -18,7 +18,7 @@ public class MovieListModule {
     @Provides
     @Singleton
     public IMovieRepository movieRepository(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource, FavoriteMovieDao favoriteMovieDao, MovieApiService movieApiService) {
-        return new MovieRepositoryImpl(moviePagingSource, favoritePagingSource, favoriteMovieDao, movieApiService);
+        return new MovieRepositoryImpl(moviePagingSource, favoritePagingSource);
     }
 
 }

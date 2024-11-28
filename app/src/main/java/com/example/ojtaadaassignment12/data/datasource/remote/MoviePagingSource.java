@@ -113,4 +113,9 @@ public class MoviePagingSource extends RxPagingSource<Integer, MovieEntity> {
             );
         });
     }
+
+    public Single<MovieEntity> getMovieDetailById(long movieId) {
+        return movieApiService.getMovieDetail(movieId)
+                .subscribeOn(Schedulers.io());
+    }
 }

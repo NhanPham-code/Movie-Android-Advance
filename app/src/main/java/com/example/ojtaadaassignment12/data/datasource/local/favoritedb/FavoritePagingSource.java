@@ -86,4 +86,16 @@ public class FavoritePagingSource extends RxPagingSource<Integer, MovieEntity> {
                 nextPage
         );
     }
+
+    public void insertFavoriteMovie(MovieEntity movie) {
+        favoriteMovieDao.insertFavoriteMovie(movie);
+    }
+
+    public void deleteFavoriteMovieById(long id) {
+        favoriteMovieDao.deleteFavoriteMovieById(id);
+    }
+
+    public Single<Integer> getFavoriteMoviesCount() {
+        return favoriteMovieDao.getFavoriteMoviesCount();
+    }
 }

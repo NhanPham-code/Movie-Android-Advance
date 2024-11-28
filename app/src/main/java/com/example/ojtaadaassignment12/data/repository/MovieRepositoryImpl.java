@@ -30,24 +30,14 @@ public class MovieRepositoryImpl implements IMovieRepository {
     // Local data source
     FavoritePagingSource favoritePagingSource;
 
-    // Use to get favorite movie list from local database
-    FavoriteMovieDao favoriteMovieDao;
-
-    // use to get movie detail from API
-    MovieApiService movieApiService;
 
     @Inject
-    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource, FavoriteMovieDao favoriteMovieDao, MovieApiService movieApiService) {
+    public MovieRepositoryImpl(MoviePagingSource moviePagingSource, FavoritePagingSource favoritePagingSource) {
         // use dagger to inject the network page source
         this.moviePagingSource = moviePagingSource;
 
         // use dagger to inject the local page source
         this.favoritePagingSource = favoritePagingSource;
-
-        // use dagger to inject the favorite movie dao
-        this.favoriteMovieDao = favoriteMovieDao;
-
-        this.movieApiService = movieApiService;
     }
 
     /**
@@ -77,6 +67,17 @@ public class MovieRepositoryImpl implements IMovieRepository {
         // Map the MovieEntity -> Movie using PagingDataTransforms.map
         return PagingRx.getFlowable(pager)
                 .map(pagingData -> PagingDataTransforms.map(pagingData, Runnable::run, MovieMapper::toDomain));
+    }
+
+    /**
+     * Get movie detail from API
+     * @param movieId: movie id
+     * @return Single<Movie> movie detail
+     */
+    @Override
+    public Single<Movie> getMovieDetailById(long movieId) {
+        return moviePagingSource.getMovieDetailById(movieId)
+                .map(MovieMapper::toDomain);
     }
 
 
@@ -137,7 +138,8 @@ public class MovieRepositoryImpl implements IMovieRepository {
      */
     @Override
     public void insertFavoriteMovie(Movie movie) {
-        favoriteMovieDao.insertFavoriteMovie(MovieMapper.toEntity(movie));
+        //favoriteMovieDao.insertFavoriteMovie(MovieMapper.toEntity(movie));
+        favoritePagingSource.insertFavoriteMovie(MovieMapper.toEntity(movie));
     }
 
     /**
@@ -147,7 +149,9 @@ public class MovieRepositoryImpl implements IMovieRepository {
      */
     @Override
     public void deleteFavoriteMovie(Movie movie) {
-        favoriteMovieDao.deleteFavoriteMovieById(movie.getId());
+        //favoriteMovieDao.deleteFavoriteMovieById(movie.getId());
+        MovieEntity movieEntity = MovieMapper.toEntity(movie);
+        favoritePagingSource.deleteFavoriteMovieById(movieEntity.getId());
     }
 
     /**
@@ -157,18 +161,7 @@ public class MovieRepositoryImpl implements IMovieRepository {
      */
     @Override
     public Single<Integer> getFavoriteMoviesCount() {
-        return favoriteMovieDao.getFavoriteMoviesCount();
-    }
-
-    /**
-     * Get movie detail from API
-     * @param movieId: movie id
-     * @return Single<Movie> movie detail
-     */
-    @Override
-    public Single<Movie> getMovieDetailById(long movieId) {
-        return movieApiService.getMovieDetail(movieId)
-                .map(MovieMapper::toDomain);
+        return favoritePagingSource.getFavoriteMoviesCount();
     }
 
 }
