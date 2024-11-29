@@ -65,7 +65,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             ratingPreferences.setSummary(rating);
 
             ratingPreferences.setOnPreferenceClickListener(preference -> {
-                showRatingDialog(rating);
+                String ratingDisplay = sharedPreferences.getString("rating", "1");
+                showRatingDialog(ratingDisplay);
                 return true;
             });
         }
@@ -128,8 +129,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         SeekBar seekBar = view.findViewById(R.id.seekBar);
         TextView seekBarValue = view.findViewById(R.id.seekBarValue);
 
+        // set the seekbar value to the rating value
+        seekBarValue.setText(ratingCheck);
+
         seekBar.setMax(10);
-        //seekBar.scrollBy();
+        // set the seekbar progress to the rating value
+        seekBar.setProgress(Integer.parseInt(ratingCheck));
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
