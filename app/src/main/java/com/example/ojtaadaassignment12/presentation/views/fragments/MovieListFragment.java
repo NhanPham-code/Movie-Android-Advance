@@ -160,7 +160,7 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
             binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }
         movieListAdapter.setGridLayout(isGridLayout);
-        binding.recyclerView.setAdapter(movieListAdapter);
+        binding.recyclerView.setAdapter(movieListAdapter.withLoadStateFooter(new LoadingStateAdapter()));
     }
 
     /**

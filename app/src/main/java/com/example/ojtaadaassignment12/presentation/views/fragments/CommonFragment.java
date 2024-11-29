@@ -86,10 +86,14 @@ public class CommonFragment extends Fragment {
                 if (navController.getCurrentDestination().getId() == R.id.movieListFragment) {
                     navController.navigate(R.id.action_movieListFragment_to_movieDetailFragment);
 
-                    mainFragment.moveToTab(0);
+                    if (mainFragment != null) {
+                        mainFragment.moveToTab(0);
+                    }
                 } else {
                     // Detail fragment is show in tab 0  -> move to tab 0
-                    mainFragment.moveToTab(0);
+                    if (mainFragment != null) {
+                        mainFragment.moveToTab(0);
+                    }
                 }
             }
         });
