@@ -21,6 +21,7 @@ import java.util.Calendar;
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     SharedPreferences sharedPreferences;
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     ListPreference categoryPreferences;
     Preference ratingPreferences;
@@ -42,6 +43,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             });
         }
+
+        // Listen for changes in shared preferences (selected in option menu)
+        // sync the selected category with the list preference
+        preferenceChangeListener = (sharedPreferences, key) -> {
+            if ("category".equals(key)) {
+                String category = sharedPreferences.getString(key, "popular");
+                if (categoryPreferences != null) {
+                    categoryPreferences.setValue(category); // Update the list preference's value
+                }
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+
 
         // ratting
         ratingPreferences = findPreference("rating");
@@ -100,6 +114,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
         }
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     private void showRatingDialog() {

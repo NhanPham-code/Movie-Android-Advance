@@ -83,7 +83,14 @@ public class CommonFragment extends Fragment {
         // observe movie detail view model to navigate to movie detail screen (click movie item or click reminder item)
         movieDetailViewModel.getMovieDetailMutableLiveData().observe(getViewLifecycleOwner(), movie -> {
             if (movie != null && movie.getId() != 0) {
-                navController.navigate(R.id.movieDetailFragment);
+                if (navController.getCurrentDestination().getId() == R.id.movieListFragment) {
+                    navController.navigate(R.id.action_movieListFragment_to_movieDetailFragment);
+
+                    mainFragment.moveToTab(0);
+                } else {
+                    // Detail fragment is show in tab 0  -> move to tab 0
+                    mainFragment.moveToTab(0);
+                }
             }
         });
 
@@ -112,11 +119,13 @@ public class CommonFragment extends Fragment {
         });
 
         // handle back button press
-        requireActivity().getOnBackPressedDispatcher().addCallback(requireActivity(), new OnBackPressedCallback(true) {
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (navController.getCurrentDestination().getId() == R.id.movieDetailFragment) {
                     navController.popBackStack(R.id.movieListFragment, false);
+
+                    mainFragment.moveToTab(0);
                 } else {
                     requireActivity().finish();
                 }

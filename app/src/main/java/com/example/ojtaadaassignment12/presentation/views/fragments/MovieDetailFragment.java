@@ -86,98 +86,100 @@ public class MovieDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentMovieDetailBinding.inflate(inflater, container, false);
 
-        // get movie detail from view model
-        Movie movie = movieDetailViewModel.getMovieDetailMutableLiveData().getValue();
+        // observe movie detail to update UI when click on a movie in the list
+        movieDetailViewModel.getMovieDetailMutableLiveData().observe(getViewLifecycleOwner(), movie -> {
 
-        if (movie != null) {
-            // fill data to view
-            binding.tvReleaseDate.setText(movie.getReleaseDate());
-            binding.tvRating.setText(String.format("%.1f/10", movie.getVoteAverage()));
-            binding.tvOverview.setText(movie.getOverview());
-            picasso.load(Constant.IMAGE_BASE_URL + movie.getPosterPath())
-                    .placeholder(R.drawable.baseline_image_24)
-                    .error(R.drawable.baseline_image_not_supported_24)
-                    .into(binding.ivMoviePoster);
-            if (movie.getIsFavorite() == 0) {
-                binding.ivFavorite.setImageResource(R.drawable.ic_star);
-            } else {
-                binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
+            if (movie != null) {
+                // fill data to view
+                binding.tvReleaseDate.setText(movie.getReleaseDate());
+                binding.tvRating.setText(String.format("%.1f/10", movie.getVoteAverage()));
+                binding.tvOverview.setText(movie.getOverview());
+                picasso.load(Constant.IMAGE_BASE_URL + movie.getPosterPath())
+                        .placeholder(R.drawable.baseline_image_24)
+                        .error(R.drawable.baseline_image_not_supported_24)
+                        .into(binding.ivMoviePoster);
+                if (movie.getIsFavorite() == 0) {
+                    binding.ivFavorite.setImageResource(R.drawable.ic_star);
+                } else {
+                    binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
+                }
+
+                // get cast and crew of a movie
+                movieDetailViewModel.getCastAndCrewFromApi(movie.getId());
+                // observe cast list to update UI when get data from API
+                movieDetailViewModel.getCastListMutableLiveData().observe(getViewLifecycleOwner(), casts -> {
+                    // set cast and crew to recycler view
+                    CastAdapter castAdapter = new CastAdapter(casts);
+                    binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                    binding.recyclerView.setAdapter(castAdapter);
+                });
+
+                // observe movie update favorite status to update UI if favorite status is changed
+                movieListViewModel.getUpdateFavoriteMovie().observe(getViewLifecycleOwner(), movieUpdate -> {
+                    if (movieUpdate.getId() == movie.getId()) {
+                        movie.setIsFavorite(movieUpdate.getIsFavorite());
+                        if (movie.getIsFavorite() == 0) {
+                            binding.ivFavorite.setImageResource(R.drawable.ic_star);
+                        } else {
+                            binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
+                        }
+                    }
+                });
+
+                // set favorite button click listener
+                binding.ivFavorite.setOnClickListener(v -> {
+                    if (movie.getIsFavorite() == 0) {
+                        movie.setIsFavorite(1);
+                        binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
+
+                        // add favorite movie to database (favorite list fragment observer to update)
+                        movieListViewModel.insertFavoriteMovie(movie);
+                    } else {
+                        movie.setIsFavorite(0);
+                        binding.ivFavorite.setImageResource(R.drawable.ic_star);
+
+                        // remove favorite movie from database (favorite list fragment observer to update UI)
+                        movieListViewModel.deleteFavoriteMovie(movie);
+                    }
+                });
+
+                // check movie is set reminder or not
+                // observe reminder list to update UI when reminder is added or deleted
+                reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
+                    Reminder reminderCheck = null;
+                    // check movie is set in reminder or not
+                    for (Reminder reminder : reminders) {
+                        if (reminder.getMovieId() == movie.getId()) { // movie have set reminder
+                            reminderCheck = reminder;
+                            break;
+                        } else {
+                            reminderCheck = null;
+                        }
+                    }
+
+                    if (reminderCheck == null) {
+                        // binding.btnReminder.setVisibility(View.VISIBLE);
+                        // show reminder button and disable reminder information
+                        binding.btnReminder.setText("Reminder");
+                        binding.reminderInfo.setVisibility(View.GONE);
+                    } else {
+                        // binding.btnReminder.setVisibility(View.INVISIBLE);
+                        // show reminder information and disable reminder button
+                        binding.btnReminder.setText("Update Reminder");
+                        binding.reminderInfo.setVisibility(View.VISIBLE);
+                        binding.reminderInfo.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                                .format(new Date(reminderCheck.getTime())));
+                    }
+
+                    // set reminder button click listener
+                    Reminder finalReminderCheck = reminderCheck;
+                    binding.btnReminder.setOnClickListener(v -> {
+                        showDateTimePicker(movie, finalReminderCheck);
+                    });
+                });
             }
 
-            // get cast and crew of a movie
-            movieDetailViewModel.getCastAndCrewFromApi(movie.getId());
-            // observe cast list to update UI when get data from API
-            movieDetailViewModel.getCastListMutableLiveData().observe(getViewLifecycleOwner(), casts -> {
-                // set cast and crew to recycler view
-                CastAdapter castAdapter = new CastAdapter(casts);
-                binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-                binding.recyclerView.setAdapter(castAdapter);
-            });
-
-            // observe movie update favorite status to update UI if favorite status is changed
-            movieListViewModel.getUpdateFavoriteMovie().observe(getViewLifecycleOwner(), movieUpdate -> {
-                if (movieUpdate.getId() == movie.getId()) {
-                    movie.setIsFavorite(movieUpdate.getIsFavorite());
-                    if (movie.getIsFavorite() == 0) {
-                        binding.ivFavorite.setImageResource(R.drawable.ic_star);
-                    } else {
-                        binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
-                    }
-                }
-            });
-
-            // set favorite button click listener
-            binding.ivFavorite.setOnClickListener(v -> {
-                if (movie.getIsFavorite() == 0) {
-                    movie.setIsFavorite(1);
-                    binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
-
-                    // add favorite movie to database (favorite list fragment observer to update)
-                    movieListViewModel.insertFavoriteMovie(movie);
-                } else {
-                    movie.setIsFavorite(0);
-                    binding.ivFavorite.setImageResource(R.drawable.ic_star);
-
-                    // remove favorite movie from database (favorite list fragment observer to update UI)
-                    movieListViewModel.deleteFavoriteMovie(movie);
-                }
-            });
-
-            // check movie is set reminder or not
-            // observe reminder list to update UI when reminder is added or deleted
-            reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
-                Reminder reminderCheck = null;
-                // check movie is set in reminder or not
-                for (Reminder reminder : reminders) {
-                    if (reminder.getMovieId() == movie.getId()) { // movie have set reminder
-                        reminderCheck = reminder;
-                        break;
-                    } else {
-                        reminderCheck = null;
-                    }
-                }
-
-                if (reminderCheck == null) {
-                    // binding.btnReminder.setVisibility(View.VISIBLE);
-                    // show reminder button and disable reminder information
-                    binding.btnReminder.setText("Reminder");
-                    binding.reminderInfo.setVisibility(View.GONE);
-                } else {
-                    // binding.btnReminder.setVisibility(View.INVISIBLE);
-                    // show reminder information and disable reminder button
-                    binding.btnReminder.setText("Update Reminder");
-                    binding.reminderInfo.setVisibility(View.VISIBLE);
-                    binding.reminderInfo.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                            .format(new Date(reminderCheck.getTime())));
-                }
-
-                // set reminder button click listener
-                Reminder finalReminderCheck = reminderCheck;
-                binding.btnReminder.setOnClickListener(v -> {
-                    showDateTimePicker(movie, finalReminderCheck);
-                });
-            });
-        }
+        });
 
         return binding.getRoot();
     }

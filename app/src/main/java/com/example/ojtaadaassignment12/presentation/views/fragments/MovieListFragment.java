@@ -78,7 +78,7 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
         // Inflate the layout for this fragment (view binding)
         binding = FragmentMovieListBinding.inflate(inflater, container, false);
 
-        // Get data settings from shared preferences
+        // Get data settings from shared preferences to get movie list
         getDataSettings();
 
         // Initialize RecyclerView
@@ -100,16 +100,6 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
         movieListViewModel.getMovieList().observe(getViewLifecycleOwner(), movies -> {
             movieListAdapter.submitData(getLifecycle(), movies);
             binding.idPBLoading.setVisibility(View.GONE);
-        });
-
-        // Observe category to load movie list by category in the option menu in MainActivity
-        movieListViewModel.getCategory().observe(getViewLifecycleOwner(), newCategory -> {
-            if (!newCategory.equals(this.category)) {
-                this.category = newCategory;
-                // Update movie list by category and sort, filter
-                movieListViewModel.getMovieListFromApi(newCategory, rating, releaseYear, sortBy);
-                binding.idPBLoading.setVisibility(View.VISIBLE);
-            }
         });
 
         // Observe favorite movie to update UI (icon) when the favorite movie is updated
@@ -187,7 +177,7 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
      * Update movie list by category and sort, filter after changing settings
      *
      * @param sharedPreferences shared preferences
-     * @param s                 key of the changed setting
+     * @param s key of the changed setting
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String s) {

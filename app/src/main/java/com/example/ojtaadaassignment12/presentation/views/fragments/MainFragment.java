@@ -1,7 +1,9 @@
 package com.example.ojtaadaassignment12.presentation.views.fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -216,7 +219,6 @@ public class MainFragment extends Fragment {
         return binding.getRoot();
     }
 
-
     /**
      * Update reminder list
      */
@@ -347,21 +349,27 @@ public class MainFragment extends Fragment {
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
+                String category = "";
                 if (itemId == R.id.menu_movie_popular) {
-                    movieListViewModel.setCategory("popular");
-                    return true;
+                    category = "popular";
                 } else if (itemId == R.id.menu_movie_top_rated) {
-                    movieListViewModel.setCategory("top_rated");
-                    return true;
+                    category = "top_rated";
                 } else if (itemId == R.id.menu_movie_upcoming) {
-                    movieListViewModel.setCategory("upcoming");
-                    return true;
+                    category = "upcoming";
                 } else if (itemId == R.id.menu_movie_now_playing) {
-                    movieListViewModel.setCategory("now_playing");
-                    return true;
-                } else {
-                    return false;
+                    category = "now_playing";
                 }
+
+                // save category to shared preferences
+                if(!category.isEmpty()) {
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("category", category);
+                    editor.apply();
+                    return true;
+                }
+
+                return false;
             }
         });
     }
@@ -379,15 +387,9 @@ public class MainFragment extends Fragment {
                 switch (position) {
                     case 0: // Movie List
                         if (isDetailFragmentShow == false) {
-                            binding.toolbar.setTitle("Movies");
-                            binding.changeLayoutButton.setVisibility(View.VISIBLE);
-                            binding.searchEditText.setVisibility(View.GONE);
-                            binding.searchButton.setVisibility(View.GONE);
-                            isOptionsMenuEnabled = true;
+                            setAppbarInListFragment();
                         } else {
                             setAppbarInDetailFragment();
-                            binding.searchEditText.setVisibility(View.GONE);
-                            binding.searchButton.setVisibility(View.GONE);
                         }
                         break;
                     case 1: // Favorite List
@@ -405,6 +407,8 @@ public class MainFragment extends Fragment {
                         binding.changeLayoutButton.setVisibility(View.GONE);
                         binding.searchEditText.setVisibility(View.GONE);
                         binding.searchButton.setVisibility(View.GONE);
+                        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+                        setUpToolbar();
                         isOptionsMenuEnabled = false;
                         break;
                     case 3: // About
@@ -412,6 +416,8 @@ public class MainFragment extends Fragment {
                         binding.changeLayoutButton.setVisibility(View.GONE);
                         binding.searchEditText.setVisibility(View.GONE);
                         binding.searchButton.setVisibility(View.GONE);
+                        actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
+                        setUpToolbar();
                         isOptionsMenuEnabled = false;
                         break;
                 }
@@ -507,6 +513,20 @@ public class MainFragment extends Fragment {
         actionBarDrawerToggle.syncState();
     }
 
+    /**
+     * Move to tab
+     *
+     * @param tab: tab index
+     */
+    public void moveToTab(int tab) {
+        binding.viewPager.setCurrentItem(tab);
+    }
+
+    /**
+     * Set isDetailFragmentShow
+     *
+     * @param isDetailFragmentShow: boolean
+     */
     public void setIsDetailFragmentShow(boolean isDetailFragmentShow) {
         this.isDetailFragmentShow = isDetailFragmentShow;
     }
@@ -531,17 +551,15 @@ public class MainFragment extends Fragment {
             }
         });
 
-        // move to tab 1 (if click in favorite list fragment)
-        if (binding.viewPager.getCurrentItem() != 0) {
-            binding.viewPager.setCurrentItem(0);
-        }
-
         // hide change layout button
         binding.changeLayoutButton.setVisibility(View.GONE);
 
         // option menu is disabled
         isOptionsMenuEnabled = false;
         requireActivity().invalidateOptionsMenu(); // call onPrepareOptionsMenu to refresh options menu
+
+        binding.searchEditText.setVisibility(View.GONE);
+        binding.searchButton.setVisibility(View.GONE);
 
     }
 
@@ -562,6 +580,9 @@ public class MainFragment extends Fragment {
 
         // show change layout button
         binding.changeLayoutButton.setVisibility(View.VISIBLE);
+
+        binding.searchEditText.setVisibility(View.GONE);
+        binding.searchButton.setVisibility(View.GONE);
     }
 
 }

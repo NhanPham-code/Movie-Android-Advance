@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
             long movieId = intent.getLongExtra("movieId", -1);
             int isFavoriteOfMovie = intent.getIntExtra("isFavoriteOfMovie", -1);
             if (movieId != -1) {
+                // get movie detail from API. To navigate to MovieDetailFragment when click on notification
                 movieDetailViewModel.getMovieDetailFromApi(movieId, isFavoriteOfMovie);
             }
         }

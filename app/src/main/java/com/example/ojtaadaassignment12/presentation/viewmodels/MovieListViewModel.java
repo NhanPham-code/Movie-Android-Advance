@@ -41,9 +41,6 @@ public class MovieListViewModel extends ViewModel {
     // use to change layout to grid by movie list fragment
     private final MutableLiveData<Boolean> isGrid = new MutableLiveData<>();
 
-    // category to get movie list
-    private final MutableLiveData<String> category = new MutableLiveData<>();
-
     // use cases
     MovieUseCase movieUseCase;
     FavoriteUseCase favoriteUseCase;
@@ -58,22 +55,6 @@ public class MovieListViewModel extends ViewModel {
         this.movieUseCase = getMovieUseCase;
 
         this.favoriteUseCase = favoriteUseCase;
-    }
-
-    /**
-     * set category to get movie list
-     * @param category: category to get movie list
-     */
-    public void setCategory(String category) {
-        this.category.setValue(category);
-    }
-
-    /**
-     * get category to get movie list
-     * @return category to get movie list
-     */
-    public LiveData<String> getCategory() {
-        return category;
     }
 
     /**
