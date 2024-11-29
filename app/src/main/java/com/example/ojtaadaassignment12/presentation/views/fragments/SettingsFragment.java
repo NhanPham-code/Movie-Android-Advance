@@ -65,7 +65,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             ratingPreferences.setSummary(rating);
 
             ratingPreferences.setOnPreferenceClickListener(preference -> {
-                showRatingDialog();
+                showRatingDialog(rating);
                 return true;
             });
         }
@@ -122,13 +122,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
-    private void showRatingDialog() {
+    private void showRatingDialog(String ratingCheck) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View view = getLayoutInflater().inflate(R.layout.dialog_seekbar, null);
         SeekBar seekBar = view.findViewById(R.id.seekBar);
         TextView seekBarValue = view.findViewById(R.id.seekBarValue);
 
         seekBar.setMax(10);
+        //seekBar.scrollBy();
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

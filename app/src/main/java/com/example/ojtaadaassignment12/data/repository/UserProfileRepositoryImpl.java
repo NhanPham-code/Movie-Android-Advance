@@ -34,7 +34,16 @@ public class UserProfileRepositoryImpl implements IUserProfileRepository {
                 UserProfileEntity userProfileEntity = snapshot.getValue(UserProfileEntity.class);
                 if (userProfileEntity != null) {
                     UserProfile userProfile = UserProfileMapper.toDomain(userProfileEntity);
+                    userProfileLiveData.setValue(userProfile); // Update LiveData from background thread safety
                     userProfileLiveData.postValue(userProfile); // Update LiveData from background thread safety
+                } else {
+                    UserProfileEntity userProfileEntitySample = new UserProfileEntity();
+                    userProfileEntitySample.setFullName("sample name");
+                    userProfileEntitySample.setBirthday("sample birthday");
+                    userProfileEntitySample.setEmail("sample email");
+                    userProfileEntitySample.setGender("male");
+
+                    userProfileLiveData.setValue(UserProfileMapper.toDomain(userProfileEntitySample));
                 }
             }
 

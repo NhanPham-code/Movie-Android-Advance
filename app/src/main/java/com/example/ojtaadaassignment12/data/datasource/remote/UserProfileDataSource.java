@@ -30,7 +30,7 @@ public class UserProfileDataSource {
 
     public void getUserProfile(ValueEventListener listener) {
         String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        mDatabaseReference.child(deviceId).addListenerForSingleValueEvent(listener);
+        mDatabaseReference.child(deviceId).addValueEventListener(listener);
     }
 
     public void setUserProfile(UserProfileEntity userProfile) {
