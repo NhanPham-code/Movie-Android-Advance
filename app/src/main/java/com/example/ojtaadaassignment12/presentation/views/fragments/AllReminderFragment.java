@@ -66,7 +66,7 @@ public class AllReminderFragment extends Fragment {
         reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
 
             AllReminderAdapter allReminderAdapter = new AllReminderAdapter(reminders, reminderViewModel,
-                    movieDetailViewModel, navController, getViewLifecycleOwner());
+                    movieDetailViewModel, navController, getViewLifecycleOwner(), requireContext());
             binding.rvAllReminder.setLayoutManager(new LinearLayoutManager(requireContext()));
             binding.rvAllReminder.setAdapter(allReminderAdapter);
         });

@@ -1,5 +1,6 @@
 package com.example.ojtaadaassignment12.presentation.views.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkManager;
 
 import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.domain.models.Reminder;
@@ -43,13 +45,17 @@ public class AllReminderAdapter extends RecyclerView.Adapter<AllReminderAdapter.
 
     LifecycleOwner lifecycleOwner;
 
+    Context context;
+
     public AllReminderAdapter(List<Reminder> reminderList, ReminderViewModel reminderViewModel,
-                              MovieDetailViewModel movieDetailViewModel, NavController navController, LifecycleOwner lifecycleOwner) {
+                              MovieDetailViewModel movieDetailViewModel, NavController navController,
+                              LifecycleOwner lifecycleOwner, Context context) {
         this.reminderList = reminderList;
         this.reminderViewModel = reminderViewModel;
         this.navController = navController;
         this.movieDetailViewModel = movieDetailViewModel;
         this.lifecycleOwner = lifecycleOwner;
+        this.context = context;
     }
 
     @NonNull
@@ -73,6 +79,7 @@ public class AllReminderAdapter extends RecyclerView.Adapter<AllReminderAdapter.
         holder.tvMovieInfo.setText(reminder.getTitleMovie() + " - " + reminder.getReleaseDateMovie().substring(0, 4) + " - " + String.format("%.1f", reminder.getVoteAverageMovie()));
         holder.tvReminderInfo.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(reminder.getTime())));
 
+
         // Set delete reminder button
         holder.btnDeleteReminder.setOnClickListener(v -> {
             // Show popup menu
@@ -88,6 +95,8 @@ public class AllReminderAdapter extends RecyclerView.Adapter<AllReminderAdapter.
                                 // remove reminder from database
                                 reminderViewModel.removeReminderFromDB(reminder);
 
+                                // cancel worker
+                                cancelWork(reminder.getMovieId());
                             })
                             .setNegativeButton("Cancel", null)
                             .show();
@@ -111,6 +120,16 @@ public class AllReminderAdapter extends RecyclerView.Adapter<AllReminderAdapter.
 
         });
 
+    }
+
+    /**
+     * Cancel work with the specific tag
+     *
+     * @param movieId: the id of the movie
+     */
+    private void cancelWork(long movieId) {
+        WorkManager.getInstance(context)
+                .cancelAllWorkByTag("Reminder_" + movieId); // Cancel work with the specific tag
     }
 
     @Override

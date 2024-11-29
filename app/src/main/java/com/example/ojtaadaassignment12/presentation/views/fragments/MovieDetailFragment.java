@@ -114,6 +114,18 @@ public class MovieDetailFragment extends Fragment {
                 binding.recyclerView.setAdapter(castAdapter);
             });
 
+            // observe movie update favorite status to update UI if favorite status is changed
+            movieListViewModel.getUpdateFavoriteMovie().observe(getViewLifecycleOwner(), movieUpdate -> {
+                if (movieUpdate.getId() == movie.getId()) {
+                    movie.setIsFavorite(movieUpdate.getIsFavorite());
+                    if (movie.getIsFavorite() == 0) {
+                        binding.ivFavorite.setImageResource(R.drawable.ic_star);
+                    } else {
+                        binding.ivFavorite.setImageResource(R.drawable.ic_star_favorite);
+                    }
+                }
+            });
+
             // set favorite button click listener
             binding.ivFavorite.setOnClickListener(v -> {
                 if (movie.getIsFavorite() == 0) {
@@ -134,7 +146,6 @@ public class MovieDetailFragment extends Fragment {
             // check movie is set reminder or not
             // observe reminder list to update UI when reminder is added or deleted
             reminderViewModel.getReminderList().observe(getViewLifecycleOwner(), reminders -> {
-
                 Reminder reminderCheck = null;
                 // check movie is set in reminder or not
                 for (Reminder reminder : reminders) {
@@ -165,7 +176,6 @@ public class MovieDetailFragment extends Fragment {
                 binding.btnReminder.setOnClickListener(v -> {
                     showDateTimePicker(movie, finalReminderCheck);
                 });
-
             });
         }
 

@@ -140,9 +140,9 @@ public class MovieListAdapter extends PagingDataAdapter<Movie, MovieListAdapter.
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
 
-        private final ItemMovieListTypeBinding listTypeBinding;
-        private final ItemMovieGridTypeBinding gridTypeBinding;
-        private final boolean isGridLayout;
+        public final ItemMovieListTypeBinding listTypeBinding;
+        public final ItemMovieGridTypeBinding gridTypeBinding;
+        public final boolean isGridLayout;
 
         public MovieViewHolder(ItemMovieListTypeBinding binding) {
             super(binding.getRoot());

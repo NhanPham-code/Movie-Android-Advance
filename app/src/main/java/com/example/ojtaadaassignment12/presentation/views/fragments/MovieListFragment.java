@@ -12,14 +12,19 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.ojtaadaassignment12.R;
 import com.example.ojtaadaassignment12.di.MyApplication;
 import com.example.ojtaadaassignment12.databinding.FragmentMovieListBinding;
+import com.example.ojtaadaassignment12.domain.models.Movie;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieDetailViewModel;
 import com.example.ojtaadaassignment12.presentation.viewmodels.MovieListViewModel;
 import com.example.ojtaadaassignment12.presentation.views.adapters.LoadingStateAdapter;
 import com.example.ojtaadaassignment12.presentation.views.adapters.MovieListAdapter;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -108,8 +113,36 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
         });
 
         // Observe favorite movie to update UI (icon) when the favorite movie is updated
-        movieListViewModel.getUpdateFavoriteMovie().observe(getViewLifecycleOwner(), movie -> {
-            movieListAdapter.updateItem(movie);
+        movieListViewModel.getUpdateFavoriteMovie().observe(getViewLifecycleOwner(), movieUpdate -> {
+
+            //movieListAdapter.updateItem(movie);
+
+            // Update the favorite icon of the movie when the favorite movie is updated
+            List<Movie> movies = movieListAdapter.snapshot().getItems();
+            for (int i = 0; i < movies.size(); i++) {
+                if (movies.get(i).getId() == movieUpdate.getId()) {
+                    // Update the movie in the list
+                    movies.get(i).setIsFavorite(movieUpdate.getIsFavorite());
+
+                    // Find the ViewHolder for the specific position
+                    RecyclerView.ViewHolder holder = binding.recyclerView.findViewHolderForAdapterPosition(i);
+
+                    if (holder instanceof MovieListAdapter.MovieViewHolder) {
+                        MovieListAdapter.MovieViewHolder movieViewHolder = (MovieListAdapter.MovieViewHolder) holder;
+
+                        // Update the favorite icon based on the new status
+                        if (!movieViewHolder.isGridLayout) {
+                            // Update for list layout
+                            if (movieUpdate.getIsFavorite() == 0) {
+                                movieViewHolder.listTypeBinding.imgFavorite.setImageResource(R.drawable.ic_star);
+                            } else {
+                                movieViewHolder.listTypeBinding.imgFavorite.setImageResource(R.drawable.ic_star_favorite);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
         });
 
         //swipe to refresh
@@ -123,7 +156,6 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
 
         return binding.getRoot();
     }
-
 
 
     /**
@@ -153,8 +185,9 @@ public class MovieListFragment extends Fragment implements SharedPreferences.OnS
 
     /**
      * Update movie list by category and sort, filter after changing settings
+     *
      * @param sharedPreferences shared preferences
-     * @param s key of the changed setting
+     * @param s                 key of the changed setting
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String s) {
